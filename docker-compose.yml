@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  bridge:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - NODE_ENV=development
+      - KNOWLEDGE_API_URL=http://knowledge-api:8000
+      - KNOWLEDGE_API_TIMEOUT=30000
+      - JWT_SECRET=dev-secret-key
+      - LOG_LEVEL=debug
+      - ALLOWED_ORIGINS=http://localhost:5173,http://localhost:5174
+    depends_on:
+      - knowledge-api
+    volumes:
+      - ./src:/app/src
+    command: npm run dev
+
+  knowledge-api:
+    # This would be your MSR Event Hub backend service
+    # For now, we'll use a placeholder
+    image: python:3.11-slim
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../event-agent-example/msr-event-hub:/app
+    working_dir: /app
+    command: >
+      bash -c "pip install -q -r requirements.txt && 
+               python run_server.py --port 8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+
+networks:
+  default:
+    name: event-hub-network

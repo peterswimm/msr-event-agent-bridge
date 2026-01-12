@@ -1,0 +1,620 @@
+# MSR Event Hub Platform - Architecture & Documentation
+
+**Platform Version**: 2.0 (Phase E)  
+**Last Updated**: January 12, 2026  
+**Status**: Production-Ready  
+
+---
+
+## 🏗️ System Architecture Overview
+
+The MSR Event Hub is a **two-tier distributed platform** for managing events, projects, knowledge extraction, and AI-powered discovery.
+
+### Platform Diagram
+
+```
+┌──────────────────────────────────────────────────────────────────────┐
+│                       Frontend Tier                                  │
+│  ┌─────────────────────────────────────────────────────────────────┐ │
+│  │ React 18 + Vite 7 + Fluent UI v9 (Dark Theme)                   │ │
+│  │ • Modern responsive UI                                           │ │
+│  │ • TypeScript for type safety                                    │ │
+│  │ • Fully configurable via environment variables                  │ │
+│  └──────────────────────────────┬──────────────────────────────────┘ │
+└─────────────────────────────────┼─────────────────────────────────────┘
+                                  │ REST API + JWT
+┌─────────────────────────────────┼─────────────────────────────────────┐
+│                  API Gateway Tier (Port 3000)                         │
+│  ┌──────────────────────────────┴──────────────────────────────────┐ │
+│  │  Express.js Gateway (msr-event-agent-bridge)                   │ │
+│  │  • JWT validation & RBAC enforcement                            │ │
+│  │  • Error normalization & logging                                │ │
+│  │  • Request forwarding & correlation tracking                    │ │
+│  │  • CMK encryption integration (Azure Key Vault)                │ │
+│  │  • Multi-origin CORS support                                    │ │
+│  └──────────────────────────────┬──────────────────────────────────┘ │
+└─────────────────────────────────┼─────────────────────────────────────┘
+                                  │ Internal REST API
+┌─────────────────────────────────┼─────────────────────────────────────┐
+│              Application Tier (Port 8000)                             │
+│  ┌──────────────────────────────┴──────────────────────────────────┐ │
+│  │  FastAPI Application (msr-event-agent-chat)                    │ │
+│  │  • Event & Project management                                   │ │
+│  │  • Knowledge extraction agents (paper/talk/repo)               │ │
+│  │  • Workflow orchestration & compilation                         │ │
+│  │  • Hybrid chat routing                                          │ │
+│  │  • Neo4j graph integration                                      │ │
+│  └────────┬──────────────┬──────────────┬──────────────┬──────────┘ │
+└───────────┼──────────────┼──────────────┼──────────────┼──────────────┘
+            │              │              │              │
+        ┌───▼──┐      ┌────▼─────┐  ┌───▼──┐        ┌──▼──────┐
+        │ PG   │      │  Neo4j   │  │Redis │        │ Azure   │
+        │ SQL  │      │  Graph   │  │Cache │        │ OpenAI  │
+        └──────┘      └──────────┘  └──────┘        └─────────┘
+            │              │              │
+            └──────────────┼──────────────┘
+                    Data Layer
+```
+
+### Component Breakdown
+
+| Component | Technology | Port | Purpose |
+| --------- | ---------- | ---- | ------- |
+| **Frontend** | React 18 + Vite + Fluent UI | 5173 | User interface for event discovery, projects, chat |
+| **API Gateway** | Express.js + TypeScript | 3000 | Authentication, error handling, request forwarding |
+| **Backend** | FastAPI + Python | 8000 | Business logic, knowledge extraction, workflows |
+| **Database** | PostgreSQL | 5432 | Relational data (events, projects, users) |
+| **Graph DB** | Neo4j | 7687 | Knowledge relationships & semantic search |
+| **Cache** | Redis | 6379 | Session data, hot cache, async job queue |
+| **LLM** | Azure OpenAI | API | Language model for extraction & chat |
+
+---
+
+## 📊 Data Model
+
+### Entity Relationship
+
+```
+Event (base container)
+├── id, displayName, description
+├── startDate, endDate, location, timeZone
+├── eventType (conference/seminar/lecture-series)
+├── status (draft/live/archived)
+└── createdAt, updatedAt
+
+    ├─── Session (within Event)
+    │    ├── id, title, description
+    │    ├── speaker(s), time, duration
+    │    ├── sessionType (keynote/paper/demo/panel)
+    │    └── resources (slides, transcript, video)
+    │
+    └─── Project (Event-scoped)
+         ├── id, title, abstract, team
+         ├── status (draft/submitted/approved/published)
+         ├── tags, keywords, research-area
+         │
+         ├─── KnowledgeArtifact (scoped to Project)
+         │    ├── sourceType (paper/talk/repository)
+         │    ├── title, extractedText, claims
+         │    ├── methods, limitations, evidence
+         │    ├── sourceUrl, extractedAt
+         │    └── status (draft/review/approved)
+         │
+         └─── CompiledSummary (Published)
+              ├── whatIsNew, problemStatement
+              ├── keyMethods, evidenceAndExamples
+              ├── nextSteps, keyInsights
+              ├── faq (generated), keywords
+              └── publishedAt, modifiedAt
+
+User (Global)
+├── id, email, displayName
+├── roles [user, presenter, organizer, admin]
+├── passwordHash (bcrypt)
+├── lastLoginAt
+└── preferences (theme, notifications)
+```
+
+### Database Schema
+
+**PostgreSQL Tables**:
+- `events` - Event definitions
+- `sessions` - Sessions within events
+- `projects` - Projects/posters scoped to events
+- `knowledge_artifacts` - Draft knowledge (paper/talk/repo extracts)
+- `published_knowledge` - Published/compiled knowledge
+- `users` - User accounts & roles
+- `evaluation_executions` - Workflow execution history
+- `async_jobs` - Celery task tracking
+
+**Neo4j Nodes**:
+- `Paper`, `Author`, `Technology`, `Concept`, `Venue`
+- `Project`, `Artifact`, `Evaluation`, `Event`
+
+---
+
+## 🔐 Authentication & Authorization
+
+### Authentication Flow
+
+```
+1. User submits credentials
+                ↓
+2. Backend validates (JWT_SECRET)
+                ↓
+3. Token issued (JWT)
+   {
+     "sub": "user-id",
+     "email": "user@example.com",
+     "roles": ["user", "organizer"],
+     "exp": 1234567890,
+     "iss": "https://eventhub.internal.microsoft.com",
+     "aud": "event-hub-apps"
+   }
+                ↓
+4. Client stores token
+                ↓
+5. All requests include: Authorization: Bearer <token>
+                ↓
+6. Gateway validates:
+   - Signature (JWT_SECRET)
+   - Issuer/Audience match
+   - Not expired
+   - Extract user context
+                ↓
+7. Request forwarded with X-User-* headers
+```
+
+### RBAC Matrix
+
+| Role | Events | Projects | Knowledge | Admin |
+|------|--------|----------|-----------|-------|
+| **User** | Read | Read | Read search | ❌ |
+| **Presenter** | Read | Create, Update own | Submit own | ❌ |
+| **Organizer** | CRUD | CRUD | Review, Approve | ❌ |
+| **Admin** | CRUD | CRUD | Full control | ✅ |
+
+---
+
+## 🔌 API Endpoints
+
+### Base URLs
+- **API Gateway**: `http://localhost:3000` (production: `https://event-bridge-api.azurewebsites.net`)
+- **Backend**: `http://localhost:8000` (internal only)
+
+### Event Management
+
+```http
+GET    /v1/events                          # List all events
+POST   /v1/events                          # Create event (admin)
+GET    /v1/events/{eventId}                # Get event details
+PATCH  /v1/events/{eventId}                # Update event (admin)
+DELETE /v1/events/{eventId}                # Delete event (admin)
+```
+
+**Response Example**:
+```json
+{
+  "@odata.type": "microsoft.graph.event",
+  "id": "evt_001",
+  "displayName": "MSR Research Showcase",
+  "startDate": "2025-03-15",
+  "endDate": "2025-03-16",
+  "location": "Redmond, WA",
+  "eventType": "conference",
+  "status": "live",
+  "createdAt": "2025-01-10T10:00:00Z",
+  "updatedAt": "2025-01-12T15:30:00Z"
+}
+```
+
+### Session Management
+
+```http
+GET    /v1/events/{eventId}/sessions       # List sessions in event
+POST   /v1/events/{eventId}/sessions       # Create session
+GET    /v1/events/{eventId}/sessions/{sid} # Get session details
+PATCH  /v1/events/{eventId}/sessions/{sid} # Update session
+DELETE /v1/events/{eventId}/sessions/{sid} # Delete session
+```
+
+### Project/Poster Management
+
+```http
+GET    /v1/events/{eventId}/projects           # List projects
+POST   /v1/events/{eventId}/projects           # Create project
+GET    /v1/projects/{projectId}                # Get project details
+PATCH  /v1/projects/{projectId}                # Update project
+DELETE /v1/projects/{projectId}                # Delete project (admin)
+
+GET    /v1/projects/{projectId}/knowledge      # List artifacts
+POST   /v1/projects/{projectId}/knowledge      # Add artifact
+GET    /v1/knowledge/{artifactId}              # Get artifact
+```
+
+**Project Response**:
+```json
+{
+  "@odata.type": "microsoft.graph.project",
+  "id": "proj_001",
+  "eventId": "evt_001",
+  "title": "Knowledge Extraction from Research Papers",
+  "abstract": "Automated extraction of claims and methods from academic papers using LLM agents",
+  "team": ["alice@microsoft.com", "bob@microsoft.com"],
+  "tags": ["AI", "NLP", "Knowledge-Management"],
+  "status": "published",
+  "knowledgeArtifactIds": ["art_001", "art_002", "art_003"],
+  "publishedSummary": {
+    "whatIsNew": "First automated approach to...",
+    "keyMethods": ["PDF parsing", "LLM prompting", "Iterative refinement"],
+    "faq": ["How accurate is extraction?", "..."]
+  },
+  "publishedAt": "2025-01-12T10:00:00Z"
+}
+```
+
+### Knowledge Extraction
+
+```http
+POST   /v1/knowledge/extract                # Extract from paper/talk/repo
+GET    /v1/knowledge/extract/{jobId}        # Get extraction status
+GET    /v1/knowledge/search                 # Search all artifacts
+POST   /v1/projects/{id}/compile            # Compile into summary
+```
+
+**Extraction Request**:
+```json
+{
+  "projectId": "proj_001",
+  "sourceType": "paper",
+  "sourceUrl": "https://arxiv.org/pdf/2301.00001.pdf",
+  "title": "Retrieval-Augmented Generation for Knowledge-Intensive NLP"
+}
+```
+
+**Extraction Response**:
+```json
+{
+  "jobId": "job_abc123",
+  "status": "queued",
+  "projectId": "proj_001",
+  "sourceType": "paper",
+  "enqueuedAt": "2025-01-12T10:15:00Z",
+  "estimatedCompletionTime": "2025-01-12T10:30:00Z"
+}
+```
+
+### Chat & Search
+
+```http
+POST   /v1/chat                             # Stream chat response
+GET    /v1/chat/history/{userId}           # Get chat history
+POST   /v1/knowledge/search                # Search knowledge base
+```
+
+### Health & Status
+
+```http
+GET    /health                             # Liveness (gateway)
+GET    /ready                              # Readiness (gateway)
+GET    /health/keyvault                    # CMK Key Vault status
+GET    /docs                               # Swagger UI (backend)
+```
+
+---
+
+## 🔄 Workflows
+
+### Knowledge Extraction Workflow
+
+```
+1. User uploads paper/transcript/repo link
+                    ↓
+2. System enqueues extraction job (Celery)
+                    ↓
+3. Agent analyzes source:
+   - PaperAgent: extracts claims, methods, limitations
+   - TalkAgent: extracts key findings, Q&A
+   - RepositoryAgent: extracts tech stack, patterns
+                    ↓
+4. Structured JSON produced (KnowledgeArtifact)
+                    ↓
+5. User reviews draft
+                    ↓
+6. Organizer approves
+                    ↓
+7. System publishes (updates PublishedKnowledge)
+```
+
+### Project Compilation Workflow
+
+```
+1. Project contains 3 KnowledgeArtifacts (paper + talk + repo)
+                    ↓
+2. User initiates compilation
+                    ↓
+3. HybridEvaluator scores each artifact (1-5 scale)
+                    ↓
+4. If score < threshold: iterate with refined prompts
+                    ↓
+5. Once all artifacts approved
+                    ↓
+6. System generates compiled summary:
+   - What's New (synthesis)
+   - Key Methods (technical overview)
+   - Evidence & Examples (proof points)
+   - Next Steps (future work)
+   - FAQ (generated from artifacts)
+                    ↓
+7. Publish to event project hub
+```
+
+---
+
+## 🛠️ Configuration
+
+### Environment Variables
+
+#### Frontend (web/chat/.env)
+```env
+# API Configuration
+VITE_CHAT_API_BASE=/api                    # Gateway endpoint
+VITE_AOAI_ENDPOINT=https://xxx.openai.azure.com
+VITE_AOAI_DEPLOYMENT=gpt-4
+VITE_AOAI_API_VERSION=2024-02-15-preview
+
+# UI Configuration
+VITE_SITE_TITLE=MSR Event Hub
+VITE_THEME=webDark
+VITE_FEEDBACK_URL=mailto:feedback@microsoft.com
+
+# Example Prompts
+VITE_HERO_CARDS='[{"title":"Find research...","prompt":"..."}]'
+```
+
+#### API Gateway (.env)
+```env
+PORT=3000
+NODE_ENV=production
+
+# Backend Service
+KNOWLEDGE_API_URL=http://knowledge-api:8000
+KNOWLEDGE_API_TIMEOUT=30000
+
+# JWT Configuration
+JWT_SECRET=your-secret-key
+JWT_ISSUER=https://eventhub.internal.microsoft.com
+JWT_AUDIENCE=event-hub-apps
+
+# CORS
+ALLOWED_ORIGINS=http://localhost:5173,https://myapp.com
+
+# CMK - Customer-Managed Keys
+CMK_ENABLED=false
+KEY_VAULT_URL=https://kv-xxx.vault.azure.net/
+ENCRYPTION_KEY_NAME=event-hub-cmk
+
+# Logging
+LOG_LEVEL=info
+```
+
+#### Backend (.env)
+```env
+# Database
+DATABASE_URL=postgresql://user:pass@localhost:5432/msrevents
+NEO4J_URI=bolt://localhost:7687
+NEO4J_USER=neo4j
+NEO4J_PASSWORD=password
+
+# Cache
+REDIS_URL=redis://localhost:6379/0
+
+# AI Services
+AZURE_OPENAI_API_KEY=xxx
+AZURE_OPENAI_ENDPOINT=https://xxx.openai.azure.com
+AZURE_OPENAI_DEPLOYMENT_NAME=gpt-4
+
+# Authentication
+JWT_SECRET=your-secret-key
+JWT_ISSUER=https://eventhub.internal.microsoft.com
+
+# Async Jobs
+CELERY_BROKER_URL=redis://localhost:6379/1
+CELERY_RESULT_BACKEND=redis://localhost:6379/2
+```
+
+---
+
+## 🚀 Deployment Options
+
+### Local Development
+```bash
+# Backend
+python run_server.py --reload
+
+# Frontend
+cd web/chat && npm run dev
+
+# Gateway
+cd ../msr-event-agent-bridge && npm run dev
+```
+
+### Docker Compose (Complete Stack)
+```bash
+docker-compose up -d
+```
+
+Starts:
+- Backend API (8000)
+- Frontend (5173)
+- Gateway (3000)
+- PostgreSQL (5432)
+- Neo4j (7687)
+- Redis (6379)
+
+### Azure App Service
+```bash
+# Package
+npm run build
+
+# Deploy
+az webapp up --resource-group event-hub-rg --name event-bridge-api
+
+# Configure environment
+az webapp config appsettings set --settings KEY1=value1 KEY2=value2
+```
+
+### Kubernetes
+See `k8s/deployment.yaml` for helm charts and manifests.
+
+---
+
+## 📈 Monitoring & Observability
+
+### Key Metrics
+
+**Gateway Metrics**:
+- Request count by endpoint
+- Response time (p50, p95, p99)
+- Error rate by status code
+- JWT validation successes/failures
+- Active connections
+
+**Backend Metrics**:
+- Knowledge extraction job count & duration
+- Database query performance
+- Neo4j graph query latency
+- Celery task queue depth
+- LLM API latency & cost
+
+**Business Metrics**:
+- Events created/published
+- Projects submitted/approved
+- Knowledge artifacts extracted
+- Users active per day
+- Chat message volume
+
+### Logging
+
+**Structured Logging** (Pino + structlog):
+```json
+{
+  "timestamp": "2025-01-12T10:30:00Z",
+  "level": "info",
+  "module": "gateway",
+  "correlation_id": "abc-123-def",
+  "user_id": "user123",
+  "endpoint": "POST /v1/knowledge/extract",
+  "status": 202,
+  "duration_ms": 145,
+  "message": "Knowledge extraction enqueued"
+}
+```
+
+---
+
+## 🔒 Security
+
+### At-Rest Encryption
+- **CMK**: Customer-Managed Keys via Azure Key Vault
+- **Algorithm**: RSA-OAEP with 2048-bit keys
+- **Scope**: Sensitive data fields (API keys, passwords)
+
+### In-Transit Encryption
+- **HTTPS/TLS 1.2+**: All external traffic
+- **Mutual TLS**: Internal service-to-service (optional)
+
+### Access Control
+- **JWT**: Token-based stateless authentication
+- **RBAC**: Role-based permissions (user/presenter/organizer/admin)
+- **Managed Identity**: Azure AD for platform services
+- **API Keys**: Personal access tokens for CLI/automation
+
+### Audit Logging
+- All data modifications logged with user & timestamp
+- Key Vault access tracked via diagnostics
+- Chat history retained for compliance
+
+---
+
+## 🧪 Testing
+
+### Unit Tests
+```bash
+# Backend
+pytest tests/ -v
+
+# Gateway
+npm test
+
+# Frontend
+npm test
+```
+
+### Integration Tests
+```bash
+# Full platform end-to-end
+pytest tests/test_integration.py
+
+# Knowledge extraction pipeline
+pytest tests/test_extraction_pipeline.py
+```
+
+### Load Testing
+```bash
+# Simulate 100 concurrent users
+locust -f locustfile.py --users 100 --spawn-rate 10
+```
+
+---
+
+## 📞 Support & Troubleshooting
+
+### Common Issues
+
+**Gateway not connecting to backend**:
+```bash
+# Check backend is running
+curl http://localhost:8000/health
+
+# Verify KNOWLEDGE_API_URL in gateway .env
+# Check network connectivity between containers
+```
+
+**JWT validation fails**:
+```bash
+# Verify JWT_SECRET matches across services
+# Check token expiration (exp claim)
+# Validate issuer and audience match
+```
+
+**Knowledge extraction hangs**:
+```bash
+# Check Redis connection: redis-cli ping
+# Verify Celery worker is running
+# Check AsyncException logs
+```
+
+**CMK encryption disabled**: 
+```bash
+# Set CMK_ENABLED=true in gateway .env
+# Verify Key Vault URL and key name configured
+# Run: scripts/verify-cmk-setup.ps1
+```
+
+---
+
+## 📚 Additional Resources
+
+- **API Specification**: See [`API_REFERENCE.md`](./API_REFERENCE.md)
+- **Deployment Guide**: See [`DEPLOYMENT_RUNBOOK.md`](./DEPLOYMENT_RUNBOOK.md)
+- **Agent Guide**: See [`AGENTS_GUIDE.md`](./AGENTS_GUIDE.md)
+- **Troubleshooting**: See [`TROUBLESHOOTING.md`](./TROUBLESHOOTING.md)
+- **RBAC Reference**: See [`RBAC_MATRIX.md`](./RBAC_MATRIX.md)
+- **CMK Setup**: See [`infra/README.md`](../infra/README.md)
+
+---
+
+**Last Updated**: January 12, 2026  
+**Status**: Production Ready (Phase E)  
+**Maintainers**: MSR Event Hub Team
