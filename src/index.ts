@@ -10,6 +10,7 @@ import { eventsRouter } from './routes/events.js';
 import { projectsRouter } from './routes/projects.js';
 import { knowledgeRouter } from './routes/knowledge.js';
 import { healthRouter } from './routes/health.js';
+import { chatRouter } from './routes/chat.js';
 
 dotenv.config();
 
@@ -59,6 +60,7 @@ app.use('/ready', healthRouter);
 app.use(authMiddleware);
 
 // API routes
+app.use('/chat', chatRouter);
 app.use('/v1/events', eventsRouter);
 app.use('/v1/projects', projectsRouter);
 app.use('/v1/knowledge', knowledgeRouter);

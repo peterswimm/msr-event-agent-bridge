@@ -54,3 +54,15 @@ docker-compose.override.yml
 tmp/
 temp/
 *.tmp
+# Phase-specific and historical files
+*_phase_*.sh
+*_phase_*.ps1
+CMK_*.md
+newCard*.json
+*.bak
+server.log
+example_startup.log
+
+# Old documentation backups
+README_OLD.md
+docs/*_OLD.md
