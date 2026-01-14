@@ -37,7 +37,6 @@ const logger = {
 describe('KeyVaultClient', () => {
   it('throws on invalid vault URL', () => {
     assert.throws(() => {
-      // @ts-expect-error testing invalid input
       new KeyVaultClient({ vaultUrl: 'http://bad-url' }, logger as any);
     }, /Invalid vault URL/);
   });

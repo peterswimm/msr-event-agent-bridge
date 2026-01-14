@@ -79,9 +79,8 @@ describe('Key Vault Service', () => {
 
     const keyInfo = await keyVaultService.getKeyInfo();
     assert.ok(keyInfo.name, 'Key should have a name');
-    assert.ok(keyInfo.version, 'Key should have a version');
+    assert.ok(keyInfo.id, 'Key should have an id');
     assert.ok(keyInfo.keyType, 'Key should have a type');
-    assert.ok(Array.isArray(keyInfo.keyOps), 'Key should have operations');
     assert.ok(keyInfo.enabled !== undefined, 'Key should have enabled status');
   });
 

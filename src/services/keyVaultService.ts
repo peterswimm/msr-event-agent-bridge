@@ -48,7 +48,8 @@ class KeyVaultService {
 
       // Validate connectivity to Key Vault
       logger.info(`Validating Key Vault connectivity to ${config.keyVaultUrl}`);
-      const key = await this.keyClient.getKey(config.keyName, config.keyVersion);
+      const getKeyOptions = config.keyVersion ? { version: config.keyVersion } : undefined;
+      const key = await this.keyClient.getKey(config.keyName, getKeyOptions);
 
       if (!key) {
         throw new Error(`CMK key not found: ${config.keyName}`);
@@ -128,12 +129,12 @@ class KeyVaultService {
         throw new Error('Key Vault service not initialized');
       }
 
-      const key = await this.keyClient.getKey(this.config.keyName, this.config.keyVersion);
+      const getKeyOptions = this.config.keyVersion ? { version: this.config.keyVersion } : undefined;
+      const key = await this.keyClient.getKey(this.config.keyName, getKeyOptions);
       return {
         name: key.name,
-        version: key.version,
+        id: key.id,
         keyType: key.keyType,
-        keyOps: key.keyOps,
         enabled: key.properties.enabled,
         createdOn: key.properties.createdOn,
         updatedOn: key.properties.updatedOn,

@@ -38,7 +38,24 @@
   - Docker integration
   - Production setup with Azure AD
 
+### Refactoring & Evolution
+
+- **[PHASE3_BACKEND_RESTRUCTURING.md](./docs/PHASE3_BACKEND_RESTRUCTURING.md)** - Backend data layer setup
+  - Establish `/data/*` CRUD endpoints
+  - Move business logic from backend to Bridge
+  - Migration strategy from current backend
+  - Query consistency patterns
+  - Implementation checklist
+
+- **[PHASE4_FRONTEND_SEPARATION.md](./docs/PHASE4_FRONTEND_SEPARATION.md)** - Frontend deployment
+  - Deploy Webchat independently to CDN
+  - CORS configuration for multiple origins
+  - Separate frontend/backend CI/CD pipelines
+  - Versioning and rollback strategies
+  - Cost optimization and monitoring
+
 ### Project Summary
+
 - **[PROJECT_SUMMARY.md](./PROJECT_SUMMARY.md)** - Quick project overview
   - What was created
   - Project structure

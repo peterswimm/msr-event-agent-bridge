@@ -844,6 +844,158 @@ while (true) {
 
 ---
 
-**Last Updated**: January 12, 2026  
+## 🏗️ Architecture & Data Flow
+
+### System Architecture
+
+The MSR Event Agent system follows a **backend-as-source-of-truth** pattern with clear separation of concerns:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                   Frontend (React/Webchat)                  │
+│              - UI Components                                │
+│              - Message Management                           │
+│              - Adaptive Card Rendering                      │
+└────────────────────────┬────────────────────────────────────┘
+                         │ HTTP
+                         ↓
+┌─────────────────────────────────────────────────────────────┐
+│           Bridge (Node.js/Express API Gateway)              │
+│              - JWT Authentication                           │
+│              - RBAC Enforcement                             │
+│              - Request Proxying                             │
+│              - Business Logic Orchestration                 │
+│              - Azure Service Integration                    │
+└────────────────────────┬────────────────────────────────────┘
+                         │ HTTP
+                         ↓
+┌─────────────────────────────────────────────────────────────┐
+│        Backend (Python/FastAPI Data Layer)                  │
+│              - Database Access (PostgreSQL)                 │
+│              - Neo4j Graph Queries                          │
+│              - CRUD Operations                              │
+│              - Query Validation                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Data Flow Pattern
+
+**Principle**: Backend maintains the source of truth. Bridge executes business logic and queries backend for data.
+
+#### Chat Action Flow
+
+```
+1. Frontend (Webchat)
+   └─> User clicks card action
+       └─> POST /chat/action with { action, context }
+
+2. Bridge (API Gateway)
+   └─> Authenticate & validate request
+       └─> Locate action handler
+           └─> Query backend for related data
+               └─> Execute business logic
+                   └─> Compose response
+                       └─> Return Adaptive Card JSON
+
+3. Backend (Data Layer)
+   └─> Receive query from bridge
+       └─> Validate & sanitize
+           └─> Query PostgreSQL/Neo4j
+               └─> Return structured data
+                   └─> Bridge processes & enriches
+
+4. Frontend (Webchat)
+   └─> Receive Adaptive Card JSON
+       └─> Render card with AdaptiveCardRenderer
+           └─> Support user interaction
+```
+
+#### Query Consistency Rules
+
+1. **Backend Never Loses State**
+   - Bridge queries backend for every action requiring data
+   - No caching of project/event data in bridge memory
+   - Each request gets fresh data from PostgreSQL/Neo4j
+
+2. **Bridge Executes Business Logic**
+   - Action routing & orchestration
+   - LLM calls & AI workflows
+   - Response formatting (Adaptive Cards)
+   - Authentication & authorization
+
+3. **Backend Provides Data**
+   - CRUD: `GET /data/projects`, `POST /data/projects`, etc.
+   - Queries: `GET /data/projects?filter=...`
+   - Relationships: Neo4j graph traversal
+   - Validation: Schema enforcement
+
+### API Contracts
+
+#### Bridge → Backend (Internal)
+
+All backend queries use base URL: `http://localhost:8000/api` (or configured via `KNOWLEDGE_API_URL`)
+
+##### Data Endpoints
+```
+GET    /data/projects              List projects with pagination
+GET    /data/projects/{id}         Get single project
+POST   /data/projects              Create project (admin)
+PATCH  /data/projects/{id}         Update project (admin)
+
+GET    /data/events                List events
+GET    /data/events/{id}           Get single event
+
+GET    /data/knowledge/{type}      Query knowledge artifacts
+POST   /data/knowledge             Create artifact (admin)
+```
+
+##### Action Endpoints
+```
+POST   /actions/execute            Execute registered action
+       Body: { action, context, params }
+       Response: { content, adaptive_card }
+```
+
+### Type Sharing: @msr/types
+
+Shared TypeScript types are published as `@msr/types` and used by both Bridge and Webchat:
+
+```typescript
+// @msr/types exports
+export type ChatMessage = {
+  id: string;
+  role: "system" | "user" | "assistant";
+  content: string;
+  adaptive_card?: AdaptiveCardPayload;
+  isWelcomeCard?: boolean;
+};
+
+export type CardActionData = {
+  action?: string;
+  projectId?: string;
+  [key: string]: any;
+};
+```
+
+**Usage in Bridge**:
+```typescript
+import { ChatMessage, CardActionData } from "@msr/types";
+
+// Type-safe action handling
+const handleAction = (data: CardActionData) => {
+  // IDE provides autocomplete for action, projectId, etc.
+};
+```
+
+**Usage in Webchat**:
+```typescript
+import { ChatMessage } from "@msr/types";
+
+const [messages, setMessages] = useState<ChatMessage[]>([]);
+```
+
+---
+
+**Last Updated**: January 14, 2026  
 **API Version**: 2.0  
-**Status**: Production Ready
+**Status**: Refactored with Unified Monorepo & Shared Types
