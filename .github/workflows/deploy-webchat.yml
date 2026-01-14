@@ -1,0 +1,101 @@
+name: Deploy Webchat to Azure CDN
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'web/chat/**'
+      - 'scripts/deploy-cdn.sh'
+      - '.github/workflows/deploy-webchat.yml'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+          - dev
+          - staging
+          - prod
+
+env:
+  AZURE_RESOURCE_GROUP: msr-event-${{ github.ref == 'refs/heads/main' && 'prod' || 'dev' }}
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Set environment
+        id: set-env
+        run: |
+          if [ "${{ github.event.inputs.environment }}" != "" ]; then
+            echo "environment=${{ github.event.inputs.environment }}" >> $GITHUB_OUTPUT
+          elif [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            echo "environment=prod" >> $GITHUB_OUTPUT
+          else
+            echo "environment=dev" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: 'web/chat/package-lock.json'
+      
+      - name: Install dependencies
+        working-directory: ./web/chat
+        run: npm ci
+      
+      - name: Build webchat
+        working-directory: ./web/chat
+        env:
+          VITE_API_URL: https://api-${{ steps.set-env.outputs.environment }}.msr-event.internal
+          VITE_BRIDGE_URL: https://bridge-${{ steps.set-env.outputs.environment }}.msr-event.internal
+        run: npm run build
+      
+      - name: Verify build output
+        run: |
+          if [ ! -d "web/chat/dist" ]; then
+            echo "Build failed: dist directory not found"
+            exit 1
+          fi
+          echo "Build output size: $(du -sh web/chat/dist | cut -f1)"
+      
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      
+      - name: Deploy to Azure Storage
+        working-directory: ./scripts
+        env:
+          AZURE_RESOURCE_GROUP: msr-event-${{ steps.set-env.outputs.environment }}
+          AZURE_STORAGE_ACCOUNT: msreventchat${{ steps.set-env.outputs.environment }}
+        run: |
+          chmod +x deploy-cdn.sh
+          ./deploy-cdn.sh ${{ steps.set-env.outputs.environment }}
+      
+      - name: Verify deployment
+        env:
+          AZURE_RESOURCE_GROUP: msr-event-${{ steps.set-env.outputs.environment }}
+          AZURE_CDN_ENDPOINT: msr-event-chat-${{ steps.set-env.outputs.environment }}
+        run: |
+          echo "Deployment completed for ${{ steps.set-env.outputs.environment }}"
+          echo "Webchat URL: https://${AZURE_CDN_ENDPOINT}.azureedge.net/"
+      
+      - name: Notify deployment
+        if: always()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          text: 'Webchat deployment to ${{ steps.set-env.outputs.environment }}: ${{ job.status }}'
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+          fields: repo,message,commit,author

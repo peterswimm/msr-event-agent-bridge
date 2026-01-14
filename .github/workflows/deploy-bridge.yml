@@ -1,0 +1,127 @@
+name: Deploy Bridge Backend to Azure
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'src/**'
+      - 'Dockerfile'
+      - 'package.json'
+      - 'tsconfig.json'
+      - 'scripts/deploy-bridge.sh'
+      - '.github/workflows/deploy-bridge.yml'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+          - dev
+          - staging
+          - prod
+
+env:
+  REGISTRY_URL: msreventacr.azurecr.io
+  IMAGE_NAME: bridge
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Set environment
+        id: set-env
+        run: |
+          if [ "${{ github.event.inputs.environment }}" != "" ]; then
+            echo "environment=${{ github.event.inputs.environment }}" >> $GITHUB_OUTPUT
+          elif [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            echo "environment=prod" >> $GITHUB_OUTPUT
+          else
+            echo "environment=dev" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Build TypeScript
+        run: npm run build
+      
+      - name: Verify build output
+        run: |
+          if [ ! -d "dist" ]; then
+            echo "Build failed: dist directory not found"
+            exit 1
+          fi
+          echo "Build output size: $(du -sh dist | cut -f1)"
+      
+      - name: Run linter
+        run: npm run lint || true
+      
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      
+      - name: Login to ACR
+        run: |
+          az acr login --name msreventacr
+      
+      - name: Build and push Docker image
+        run: |
+          az acr build \
+            --registry msreventacr \
+            --image "${{ env.IMAGE_NAME }}:${{ steps.set-env.outputs.environment }}-${{ github.sha }}" \
+            --image "${{ env.IMAGE_NAME }}:${{ steps.set-env.outputs.environment }}-latest" \
+            --file Dockerfile \
+            .
+      
+      - name: Deploy to App Service
+        working-directory: ./scripts
+        env:
+          AZURE_RESOURCE_GROUP: msr-event-${{ steps.set-env.outputs.environment }}
+        run: |
+          chmod +x deploy-bridge.sh
+          ./deploy-bridge.sh ${{ steps.set-env.outputs.environment }} msreventacr
+      
+      - name: Verify deployment
+        env:
+          AZURE_RESOURCE_GROUP: msr-event-${{ steps.set-env.outputs.environment }}
+          APP_SERVICE_NAME: msr-bridge-${{ steps.set-env.outputs.environment }}
+        run: |
+          echo "Deployment completed for ${{ steps.set-env.outputs.environment }}"
+          APP_URL=$(az webapp show --name $APP_SERVICE_NAME --resource-group $AZURE_RESOURCE_GROUP --query defaultHostName -o tsv)
+          echo "Bridge API: https://${APP_URL}/"
+          
+          # Health check
+          for i in {1..10}; do
+            if curl -f "https://${APP_URL}/health" &> /dev/null; then
+              echo "Health check passed on attempt $i"
+              exit 0
+            fi
+            echo "Health check attempt $i failed, retrying in 10 seconds..."
+            sleep 10
+          done
+          echo "Health check failed after 10 attempts"
+          exit 1
+      
+      - name: Notify deployment
+        if: always()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          text: 'Bridge deployment to ${{ steps.set-env.outputs.environment }}: ${{ job.status }}'
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+          fields: repo,message,commit,author
