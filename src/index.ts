@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 
 import { authMiddleware } from './middleware/auth.js';
 import { errorHandler } from './middleware/error-handler.js';
+import { initializeTelemetry, telemetryMiddleware } from './middleware/telemetry.js';
 import { eventsRouter } from './routes/events.js';
 import { projectsRouter } from './routes/projects.js';
 import { knowledgeRouter } from './routes/knowledge.js';
@@ -13,6 +14,13 @@ import { healthRouter } from './routes/health.js';
 import { chatRouter } from './routes/chat.js';
 
 dotenv.config();
+
+// Initialize 1DS telemetry
+initializeTelemetry({
+  instrumentationKey: process.env.APPINSIGHTS_INSTRUMENTATION_KEY || '',
+  enableAutoCollection: true,
+  samplingPercentage: parseInt(process.env.TELEMETRY_SAMPLING || '100', 10)
+});
 
 const app: Express = express();
 const port = process.env.PORT || 3000;
@@ -33,6 +41,9 @@ const logger = pino({
 
 // HTTP request logging
 app.use(pinoHttp({ logger }));
+
+// Telemetry middleware (before routes)
+app.use(telemetryMiddleware);
 
 // CORS configuration
 const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:5173').split(',');
