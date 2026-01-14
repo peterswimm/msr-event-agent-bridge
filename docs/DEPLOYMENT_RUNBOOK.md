@@ -765,6 +765,34 @@ kubectl rollout restart deployment/evhub-backend -n event-hub
 
 ---
 
+## 🚀 Phase 3: Backend Data Layer Restructuring (Planned)
+
+**Timeline**: Weeks 1-2 of next phase  
+**Objective**: Establish `/data/*` CRUD endpoints, move business logic to Bridge
+
+Separate data operations from business logic by creating a pure data layer with CRUD endpoints. Backend team implements `/data/*` endpoints, Bridge team creates handlers.
+
+**Data Endpoints**: `GET|POST /data/projects`, `/data/events`, `/data/sessions`, `/data/artifacts`
+
+**Success**: All endpoints tested, Bridge queries backend for all operations, integration tests pass
+
+---
+
+## 🌐 Phase 4: Frontend Deployment Separation (Planned)
+
+**Timeline**: Weeks 4-5 of next phase  
+**Objective**: Deploy Webchat independently to CDN, enable multi-origin deployment
+
+Enable independent frontend/backend deployment with separate versioning (v1.x for frontend, v2.x for backend), CORS support for multiple origins, and CDN distribution.
+
+**Key Tasks**: Set up CDN, configure CORS, create GitHub Actions pipelines, implement monitoring
+
+**Estimated Cost**: $85-160/month (CDN $1-2, API $3-5, Compute $30-50, Database $50-100)
+
+**Success**: Webchat on CDN, CORS working, independent pipelines, monitoring configured
+
+---
+
 ## 📚 Related Documentation
 
 - [Quick Start Guide](QUICK_START.md) - Local development setup
@@ -775,9 +803,8 @@ kubectl rollout restart deployment/evhub-backend -n event-hub
 
 ---
 
-**Last Updated**: January 12, 2026  
+**Last Updated**: January 14, 2026  
 **Version**: 2.0  
-**Status**: Production Ready
+**Status**: Production Ready (Phases 1-2), Planned (Phases 3-4)
 
-**Next Review**: April 1, 2025  
-**On-Call Rotation**: See Slack #event-hub-oncall
+**Next Review**: January 20, 2026  
