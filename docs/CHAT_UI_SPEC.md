@@ -10,12 +10,13 @@ Complete specification for the MSR Event Hub conversational assistant, covering 
 
 1. [Overview](#overview)
 2. [Global Requirements](#global-requirements)
-3. [Phase 1: India MVP (Jan 24)](#phase-1-india-mvp-jan-24)
-4. [Phase 2: Multi-Event & PKA Draft (Mar 3)](#phase-2-multi-event--pka-draft-mar-3)
-5. [Phase 3–4: Cross-Event & Recommendations (Apr–Jun)](#phase-34-cross-event--recommendations-aprjun)
-6. [Error Handling & Human Escalation](#error-handling--human-escalation)
-7. [Adaptive Card Templates](#adaptive-card-templates)
-8. [Accessibility Standards](#accessibility-standards)
+3. [BRD Actions & Requirements](#brd-actions--requirements)
+4. [Phase 1: India MVP (Jan 24)](#phase-1-india-mvp-jan-24)
+5. [Phase 2: Multi-Event & PKA Draft (Mar 3)](#phase-2-multi-event--pka-draft-mar-3)
+6. [Phase 3–4: Cross-Event & Recommendations (Apr–Jun)](#phase-34-cross-event--recommendations-aprjun)
+7. [Error Handling & Human Escalation](#error-handling--human-escalation)
+8. [Adaptive Card Templates](#adaptive-card-templates)
+9. [Accessibility Standards](#accessibility-standards)
 
 ---
 
@@ -54,6 +55,111 @@ This specification defines:
 Emit telemetry on each user interaction:
 - Refusal events, edit/accept events, bookmark events, connection events, visit events
 - Error tracking (rate limit, DOSA, timeout, human escalation)
+
+---
+
+## BRD Actions & Requirements
+
+### MVP Feature Matrix (15 Core Chat Actions)
+
+The MVP chat experience supports 15 primary actions, enumerated below by phase and audience (organizers, presenters, attendees). All are discoverable via quick-action buttons, menu items, or natural language intents.
+
+#### Phase 1: India MVP (Jan 24) — 15 Core Actions
+
+**Browse & Discover** (4 actions)
+1. **View today's agenda** – List today's sessions by time, location, track; show current session
+2. **Browse all sessions** – Full agenda with filters (track, time, speaker); search by keyword
+3. **Browse poster gallery** – Grid/carousel of posters with themes; filter by topic/track
+4. **View poster detail** – Title, abstract, team, image, links (code, papers, decks, repos); QR bookmark hint
+
+**Session & Poster Details** (4 actions)
+5. **View session detail** – Title, abstract, speaker, time/location/duration, track, slides/paper/repo links, recording links (after event)
+6. **View speaker contact** – Name, title, MSR affiliation, email/contact link; optional image
+7. **View team contact** – List of team members with names, titles, email links, optional images
+8. **Access asset links** – Direct links to papers, decks, code repos, supplementary resources
+
+**Interaction & Bookmarking** (4 actions)
+9. **Bookmark session/poster** – Save to personal bookmarks; QR scan triggers bookmark (Phase 1 stub; persistence in Phase 2)
+10. **Copy session/poster link** – Generate shareable URL for email/messaging
+11. **Download poster PDF** – (If available) download poster for reference
+12. **Share poster/session** – Email or messaging integration to share with colleagues
+
+**Support & Navigation** (3 actions)
+13. **Report an issue** – Feedback form or contact link for event issues
+14. **Contact organizer** – Link to event organizer page/email
+15. **Navigate to main event page** – Return to home/agenda/poster hub
+
+---
+
+#### Phase 2: Multi-Event & PKA Draft (Mar 3) — Extended Actions
+
+**Event & Bookmark Management** (3 new actions)
+16. **Switch active event** – Select from multiple events (Project Green, Whiteboard Wednesdays); confirm context
+17. **View saved bookmarks** – List of bookmarks per event; persistent across sessions
+18. **Remove bookmark** – Unsave items from bookmark list
+
+**PKA & Knowledge Synthesis** (3 new actions)
+19. **Run PKA draft check** – Submit project content; receive draft-only checklist (Heilmeier questions, evidence, maturity)
+20. **View project FAQ** – Agent-synthesized Q&A based on project abstract and team details
+21. **View project overview** – Agent-generated summary (2–3 paragraph structured overview)
+
+**Multi-Event Discovery** (2 new actions)
+22. **Find similar projects** – Across events, suggest related posters/sessions by topic or team
+23. **Filter results to one event** – Scope multi-event queries back to single event
+
+---
+
+#### Phase 3–4: Cross-Event & Recommendations (Apr–Jun) — Advanced Actions
+
+**Cross-Event Search** (3 new actions)
+24. **Find talks on [topic]** – Search across multiple events; return top 5 with source event labels
+25. **Find researchers by name/affiliation** – Cross-event speaker/author lookup
+26. **Browse by research area** – Category-based discovery across all events
+
+**Analytics & Recommendations** (3 new actions)
+27. **View engagement stats** – Post-event: attendance, bookmarks, repeat views per session/poster
+28. **Get personalized recommendations** – "Based on your bookmarks/interests, you might also like…" with rationale
+29. **Download engagement report** – CSV/PDF export of event stats (authorized roles only)
+
+**Administrator Actions** (2 new actions)
+30. **View admin dashboard** – Event status, submission stats, bookmark metrics, compliance flags
+31. **Manage event submissions** – Organizer tools: review/approve poster data, assign QRs, validate content
+
+---
+
+### Supporting Features (Non-Chat)
+
+**Before Event**
+- Import Excel; assign project IDs/QRs; crawl links; plan physical placement; curate/validate data; finalize for printing
+- Preview agenda/posters; express interests; generate custom guide (attendee)
+
+**During Event**
+- Live browse/search by area/title/location; scan QR to bookmark; locate projects; plan routes
+- Monitor stability/usage; manage last-minute changes (organizers)
+- See engagement/bookmarks in real-time (presenters)
+
+**After Event**
+- Access personalized bookmarks; revisit details/resources; share/reference projects (attendees)
+- Engagement reports; archive for reuse (organizers)
+- Review engagement; follow up on bookmarks/interested attendees (presenters)
+
+---
+
+### Success Metrics (BRD KPIs)
+
+**MVP Launch**
+- Launch on time for MSR India TAB; no P0/P1 at start
+- Pre-event unique users: 40%+ of expected attendees
+- Post-event unique users: 60%+ within 7 days, 50%+ within 30 days
+- Connections/leads: 20%+ of bookmark/contact actions
+- Platform stability: 99.5% uptime; p99 latency <2s
+
+**Phase 2 & Beyond**
+- Events onboarded: ≥2 events by Mar 3
+- Chat usage increase: +50% month-over-month
+- PKA draft approval rate: ≥70%
+- Cross-event engagement: 30%+ of users viewing multiple events
+- Compliance gates: 100% signed off by Feb 28
 
 ---
 
