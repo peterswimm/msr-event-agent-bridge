@@ -66,64 +66,53 @@ The MVP chat experience supports 15 primary actions, enumerated below by phase a
 
 #### Phase 1: India MVP (Jan 24) — 15 Core Actions
 
-**Browse & Discover** (4 actions)
-1. **View today's agenda** – List today's sessions by time, location, track; show current session
-2. **Browse all sessions** – Full agenda with filters (track, time, speaker); search by keyword
-3. **Browse poster gallery** – Grid/carousel of posters with themes; filter by topic/track
-4. **View poster detail** – Title, abstract, team, image, links (code, papers, decks, repos); QR bookmark hint
-
-**Session & Poster Details** (4 actions)
-5. **View session detail** – Title, abstract, speaker, time/location/duration, track, slides/paper/repo links, recording links (after event)
-6. **View speaker contact** – Name, title, MSR affiliation, email/contact link; optional image
-7. **View team contact** – List of team members with names, titles, email links, optional images
-8. **Access asset links** – Direct links to papers, decks, code repos, supplementary resources
-
-**Interaction & Bookmarking** (4 actions)
-9. **Bookmark session/poster** – Save to personal bookmarks; QR scan triggers bookmark (Phase 1 stub; persistence in Phase 2)
-10. **Copy session/poster link** – Generate shareable URL for email/messaging
-11. **Download poster PDF** – (If available) download poster for reference
-12. **Share poster/session** – Email or messaging integration to share with colleagues
-
-**Support & Navigation** (3 actions)
-13. **Report an issue** – Feedback form or contact link for event issues
-14. **Contact organizer** – Link to event organizer page/email
-15. **Navigate to main event page** – Return to home/agenda/poster hub
+| # | Action | Category | Description |
+|---|--------|----------|-------------|
+| 1 | View today's agenda | Browse & Discover | List today's sessions by time, location, track; show current session |
+| 2 | Browse all sessions | Browse & Discover | Full agenda with filters (track, time, speaker); search by keyword |
+| 3 | Browse poster gallery | Browse & Discover | Grid/carousel of posters with themes; filter by topic/track |
+| 4 | View poster detail | Browse & Discover | Title, abstract, team, image, links (code, papers, decks, repos); QR bookmark hint |
+| 5 | View session detail | Session & Poster Details | Title, abstract, speaker, time/location/duration, track, slides/paper/repo links, recording links (after event) |
+| 6 | View speaker contact | Session & Poster Details | Name, title, MSR affiliation, email/contact link; optional image |
+| 7 | View team contact | Session & Poster Details | List of team members with names, titles, email links, optional images |
+| 8 | Access asset links | Session & Poster Details | Direct links to papers, decks, code repos, supplementary resources |
+| 9 | Bookmark session/poster | Interaction & Bookmarking | Save to personal bookmarks; QR scan triggers bookmark (Phase 1 stub; persistence in Phase 2) |
+| 10 | Copy session/poster link | Interaction & Bookmarking | Generate shareable URL for email/messaging |
+| 11 | Download poster PDF | Interaction & Bookmarking | Download poster for reference (if available) |
+| 12 | Share poster/session | Interaction & Bookmarking | Email or messaging integration to share with colleagues |
+| 13 | Report an issue | Support & Navigation | Feedback form or contact link for event issues |
+| 14 | Contact organizer | Support & Navigation | Link to event organizer page/email |
+| 15 | Navigate to main event page | Support & Navigation | Return to home/agenda/poster hub |
 
 ---
 
 #### Phase 2: Multi-Event & PKA Draft (Mar 3) — Extended Actions
 
-**Event & Bookmark Management** (3 new actions)
-16. **Switch active event** – Select from multiple events (Project Green, Whiteboard Wednesdays); confirm context
-17. **View saved bookmarks** – List of bookmarks per event; persistent across sessions
-18. **Remove bookmark** – Unsave items from bookmark list
-
-**PKA & Knowledge Synthesis** (3 new actions)
-19. **Run PKA draft check** – Submit project content; receive draft-only checklist (Heilmeier questions, evidence, maturity)
-20. **View project FAQ** – Agent-synthesized Q&A based on project abstract and team details
-21. **View project overview** – Agent-generated summary (2–3 paragraph structured overview)
-
-**Multi-Event Discovery** (2 new actions)
-22. **Find similar projects** – Across events, suggest related posters/sessions by topic or team
-23. **Filter results to one event** – Scope multi-event queries back to single event
+| # | Action | Category | Description |
+|---|--------|----------|-------------|
+| 16 | Switch active event | Event & Bookmark Management | Select from multiple events (Project Green, Whiteboard Wednesdays); confirm context |
+| 17 | View saved bookmarks | Event & Bookmark Management | List of bookmarks per event; persistent across sessions |
+| 18 | Remove bookmark | Event & Bookmark Management | Unsave items from bookmark list |
+| 19 | Run PKA draft check | PKA & Knowledge Synthesis | Submit project content; receive draft-only checklist (Heilmeier questions, evidence, maturity) |
+| 20 | View project FAQ | PKA & Knowledge Synthesis | Agent-synthesized Q&A based on project abstract and team details |
+| 21 | View project overview | PKA & Knowledge Synthesis | Agent-generated summary (2–3 paragraph structured overview) |
+| 22 | Find similar projects | Multi-Event Discovery | Across events, suggest related posters/sessions by topic or team |
+| 23 | Filter results to one event | Multi-Event Discovery | Scope multi-event queries back to single event |
 
 ---
 
 #### Phase 3–4: Cross-Event & Recommendations (Apr–Jun) — Advanced Actions
 
-**Cross-Event Search** (3 new actions)
-24. **Find talks on [topic]** – Search across multiple events; return top 5 with source event labels
-25. **Find researchers by name/affiliation** – Cross-event speaker/author lookup
-26. **Browse by research area** – Category-based discovery across all events
-
-**Analytics & Recommendations** (3 new actions)
-27. **View engagement stats** – Post-event: attendance, bookmarks, repeat views per session/poster
-28. **Get personalized recommendations** – "Based on your bookmarks/interests, you might also like…" with rationale
-29. **Download engagement report** – CSV/PDF export of event stats (authorized roles only)
-
-**Administrator Actions** (2 new actions)
-30. **View admin dashboard** – Event status, submission stats, bookmark metrics, compliance flags
-31. **Manage event submissions** – Organizer tools: review/approve poster data, assign QRs, validate content
+| # | Action | Category | Description |
+|---|--------|----------|-------------|
+| 24 | Find talks on [topic] | Cross-Event Search | Search across multiple events; return top 5 with source event labels |
+| 25 | Find researchers by name/affiliation | Cross-Event Search | Cross-event speaker/author lookup |
+| 26 | Browse by research area | Cross-Event Search | Category-based discovery across all events |
+| 27 | View engagement stats | Analytics & Recommendations | Post-event: attendance, bookmarks, repeat views per session/poster |
+| 28 | Get personalized recommendations | Analytics & Recommendations | "Based on your bookmarks/interests, you might also like…" with rationale |
+| 29 | Download engagement report | Analytics & Recommendations | CSV/PDF export of event stats (authorized roles only) |
+| 30 | View admin dashboard | Administrator Actions | Event status, submission stats, bookmark metrics, compliance flags |
+| 31 | Manage event submissions | Administrator Actions | Organizer tools: review/approve poster data, assign QRs, validate content |
 
 ---
 
