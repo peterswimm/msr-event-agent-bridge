@@ -1,5 +1,6 @@
 import express, { Express, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
+import rateLimit from 'express-rate-limit';
 import pinoHttp from 'pino-http';
 import pino from 'pino';
 import dotenv from 'dotenv';
@@ -45,6 +46,28 @@ app.use(pinoHttp({ logger }));
 // Telemetry middleware (before routes)
 app.use(telemetryMiddleware);
 
+// Rate limiting (JWT-aware per-user limits, IP-based fallback)
+const getRateLimitKey = (req: Request) => {
+  const userId = (req as any).user?.sub || req.ip || 'unknown';
+  return userId;
+};
+
+const apiLimiter = rateLimit({
+  keyGenerator: getRateLimitKey,
+  windowMs: 60 * 1000, // 1 minute
+  max: (req) => {
+    // 100 req/min for authenticated users, 10 for anonymous
+    return (req as any).user ? 100 : 10;
+  },
+  message: 'Too many requests. Rate limit exceeded.',
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: (req) => {
+    // Skip health checks and telemetry
+    return req.path === '/health' || req.path === '/metrics';
+  }
+});
+
 // CORS configuration
 const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:5173').split(',');
 app.use(cors({
@@ -69,6 +92,10 @@ app.use('/ready', healthRouter);
 
 // Authentication middleware
 app.use(authMiddleware);
+
+// Apply rate limiting to API routes
+app.use('/v1/', apiLimiter);
+app.use('/chat', apiLimiter);
 
 // API routes
 app.use('/chat', chatRouter);

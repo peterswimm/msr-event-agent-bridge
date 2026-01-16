@@ -121,6 +121,180 @@ export function trackFeatureUsage(feature: string, userId?: string, metadata?: R
 }
 
 /**
+ * Track AI/LLM governance metrics for compliance (DOSA)
+ * Monitors refusal rates, edits, latency, token usage, and model failures
+ */
+export function trackAIMetrics(data: {
+  conversationId: string;
+  userId?: string;
+  modelDeployment: string;
+  inputTokens: number;
+  outputTokens: number;
+  responseLatency: number; // milliseconds
+  wasRefused: boolean; // Content filtered by safety guardrails
+  editPercentage?: number; // % of response edited by human
+  responseLength?: number; // characters
+  completionStatus: 'success' | 'timeout' | 'error' | 'partial';
+  errorDetails?: string;
+}): void {
+  if (!telemetryClient) return;
+
+  // Log to Application Insights for real-time dashboard and alerts
+  telemetryClient.trackEvent({
+    name: 'ai_governance_metric',
+    properties: {
+      conversationId: data.conversationId,
+      userId: data.userId || 'system',
+      modelDeployment: data.modelDeployment,
+      wasRefused: data.wasRefused.toString(),
+      completionStatus: data.completionStatus,
+      errorDetails: data.errorDetails || 'none',
+      timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV || 'production'
+    },
+    measurements: {
+      inputTokens: data.inputTokens,
+      outputTokens: data.outputTokens,
+      totalTokens: data.inputTokens + data.outputTokens,
+      responseLatencyMs: data.responseLatency,
+      editPercentage: data.editPercentage || 0,
+      responseLength: data.responseLength || 0
+    }
+  });
+
+  // Track refusal rate separately for compliance dashboard
+  if (data.wasRefused) {
+    telemetryClient.trackEvent({
+      name: 'ai_content_refusal',
+      properties: {
+        conversationId: data.conversationId,
+        userId: data.userId || 'system',
+        modelDeployment: data.modelDeployment,
+        timestamp: new Date().toISOString()
+      }
+    });
+  }
+
+  // Alert on high latency (> 5s indicates performance degradation)
+  if (data.responseLatency > 5000) {
+    telemetryClient.trackEvent({
+      name: 'ai_high_latency_alert',
+      properties: {
+        conversationId: data.conversationId,
+        modelDeployment: data.modelDeployment
+      },
+      measurements: {
+        latencyMs: data.responseLatency
+      }
+    });
+  }
+
+  // Track model errors for reliability dashboard
+  if (data.completionStatus === 'error' || data.completionStatus === 'timeout') {
+    telemetryClient.trackEvent({
+      name: 'ai_model_error',
+      properties: {
+        conversationId: data.conversationId,
+        modelDeployment: data.modelDeployment,
+        errorStatus: data.completionStatus,
+        errorDetails: data.errorDetails || 'unknown'
+      }
+    });
+  }
+}
+
+/**
+ * Track AI response edits for compliance (edit percentage KPI)
+ * Monitors when users accept/modify AI-generated content
+ */
+export function trackAIEdit(data: {
+  conversationId: string;
+  messageId: string;
+  userId?: string;
+  action: 'accept' | 'edit' | 'reject';
+  originalLength?: number;
+  editedLength?: number;
+  editPercentage?: number; // % difference between original and edited
+  timeSinceGeneration: number; // ms from generation to action
+}): void {
+  trackEvent('ai_edit_action', {
+    conversationId: data.conversationId,
+    messageId: data.messageId,
+    userId: data.userId || 'anonymous',
+    action: data.action,
+    hasSignificantEdit: ((data.editPercentage || 0) > 10).toString()
+  }, {
+    originalLength: data.originalLength || 0,
+    editedLength: data.editedLength || 0,
+    editPercentage: data.editPercentage || 0,
+    timeSinceGenerationMs: data.timeSinceGeneration
+  });
+}
+
+/**
+ * Track rate limit exceeded events
+ * Monitors API throttling for capacity planning
+ */
+export function trackRateLimitExceeded(data: {
+  userId?: string;
+  endpoint: string;
+  limitType: 'authenticated' | 'anonymous';
+  requestCount: number;
+  limitThreshold: number;
+  retryAfter?: number; // seconds
+}): void {
+  trackEvent('rate_limit_exceeded', {
+    userId: data.userId || 'anonymous',
+    endpoint: data.endpoint,
+    limitType: data.limitType,
+    severity: data.requestCount > data.limitThreshold * 1.5 ? 'high' : 'medium'
+  }, {
+    requestCount: data.requestCount,
+    limitThreshold: data.limitThreshold,
+    excessRequests: data.requestCount - data.limitThreshold,
+    retryAfterSeconds: data.retryAfter || 0
+  });
+}
+
+/**
+ * Track connection/lead initiation events
+ * Monitors email clicks, repo visits, contact actions
+ */
+export function trackConnectionInitiated(data: {
+  eventId: string;
+  userId?: string;
+  connectionType: 'email_presenter' | 'visit_repo' | 'contact_organizer' | 'linkedin' | 'other';
+  targetId?: string; // presenter/organizer ID
+  metadata?: Record<string, string>;
+}): void {
+  trackEvent('connection_initiated', {
+    eventId: data.eventId,
+    userId: data.userId || 'anonymous',
+    connectionType: data.connectionType,
+    targetId: data.targetId || 'unknown',
+    ...data.metadata
+  });
+}
+
+/**
+ * Track bookmark actions
+ * Monitors event/session bookmarking for engagement metrics
+ */
+export function trackBookmarkAction(data: {
+  entityId: string;
+  entityType: 'event' | 'session' | 'artifact';
+  userId: string;
+  action: 'add' | 'remove';
+}): void {
+  trackEvent('bookmark_action', {
+    entityId: data.entityId,
+    entityType: data.entityType,
+    userId: data.userId,
+    action: data.action
+  });
+}
+
+/**
  * Express middleware to track API requests
  */
 export function telemetryMiddleware(req: Request, res: Response, next: NextFunction): void {

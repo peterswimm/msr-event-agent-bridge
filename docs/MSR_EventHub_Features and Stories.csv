@@ -1,0 +1,115 @@
+Story ID,Issue Type,Feature Name,Summary,Role,Owner,Tags,Status,Description,Acceptance Criteria,Target Sprint,Priority,Tags,References
+,Story,MSR Event Hub Scaffold (Front End),Engineering: multi-event support,Engineer,Mike,"Core, Engineering",,"As an engineer
+I want establish a scalable baseline platofrm in a single code base
+so that we can quickly and efficiently stand up new events","• Baseline admin capabilities functionally equivalent to RRS
+• Multi event support that meets the needs of MSR India with a scalable baseline platform",,P1,,
+,Story,Baseline Admin Experience,Admin: create & configure events,Admin,Mike,"MVP, Admin",,"As an admin
+I want to create event sections with core pages
+so that I can launch MSR India and future programs","• Admin can create hub sections (home, about, agenda)
+• Set permissions for hub/event/session (if applicable)",,P1,,"BRD L37-39,L59-62"
+,Story,Baseline Admin Experience,Admin: manage agenda & sessions,Admin,Mike,"MVP, Admin",,"As an admin
+I want to add/update sessions with required data
+so that the agenda stays accurate pre- and post-event","• Fields: title, abstract, speakers, date/time, duration, location, links
+• Toggle for Before vs After state",,P1,,BRD L66-72
+,Story,Baseline Admin Experience,Admin: manage posters/projects,Admin,Mike,"MVP, Admin",,"As an admin
+I want to add/update posters with structured fields
+so that the hub displays consistent assets","• Supports poster entity fields (core identity, event context, people/contact, related links)
+• Bulk import optional",,P1,,BRD L118
+,Story,Baseline Admin Experience,Content validation & curation,Organizer,Mike,"MVP, Organizer",,"As an organizer
+I want to review and validate content before publishing
+so that data quality remains high","• Workflow: Draft ? Review ? Published
+• Audit trail of changes",,P1,,BRD L111
+,Story,MSR Events Homepage,List & promote events,Attendee,Mike,"MVP, Attendee",,"As an attendee
+I want to see a list of upcoming and current MSR events on the homepage
+so that I can quickly navigate to the event I care about.","• Homepage displays the following events with title, date/time, location (if available), and a ""View event"" CTA
+•	Redmond Research Showcase
+•	MSR India TAB
+•	Project Green
+•	Cambridge Research Showcase
+•	MSR East: TBD
+•	MSR Asia TAB (pending future discussions)
+•	Lecture series: Whiteboard Wednesdays, AI & Society Fellows, Leaders @ Microsoft
+• For events not hosted on the hub yet, the CTA links to an external event site",,P1,,BRD L57-58
+,Story,MSR Events Homepage,Event card metadata,Organizer,Mike,"MVP, Organizer",,"As an organizer
+I can create and publish new event sites on the hub
+so they appear on the homepage","• Card fields: name, dates, optional tracks/themes 
+• Cards render consistently across desktop / mobile
+* Admin can add event metadata and homepage updates automatically",,P1,,BRD L31-35
+,Story,MSR India Event Site,Event home page,Attendee,Mike,"MVP, Attendee",,"As an attendee
+I want an event-specific home page modeled after RRS
+so that I can orient and access key sections","• Hero + quick links (About, Agenda, Posters, Sessions)
+",,P1,,BRD L60-65
+,Story,MSR India Event Site,About page ,Attendee,Mike,"MVP, Attendee",,"As an attendee
+I want an About page with logistics
+so that I know the purpose, venue, and how to attend","• Overview, venue, dates/times, registration/Teams link (pre-event), embedded talk (after-event)
+• Map/address block, if in-person",,P1,,"BRD L61,L71"
+,Story,MSR India Event Site,Multi-day agenda with tracks/themes,Attendee,Mike,"MVP, Attendee",,"As an attendee
+I want to browse a multi-day agenda filtered by tracks or themes
+so that I can find sessions relevant to me","• Multi-day agendas
+• Filter by tracks/themes
+• Session data includes title, abstract preview, speaker(s), date/time, duration, location, links to decks, related papers, repos, etc.",,P1,,"BRD L63-65,L66-70"
+,Story,MSR India Event Site,Session detail subpages (on-demand),Attendee,Mike,"MVP, Attendee",,"As an attendee
+I want a session detail page
+so that I can watch the recording and access related assets","• Generate subpage from agenda data
+• Before: Teams link + date/time/location
+• After: embedded recording
+• Related assets: decks, papers, repos",,P1,,BRD L65-72
+,Story,Poster / Project Experience,Poster hub page,Attendee,Mike,"MVP, Attendee",,"As an attendee
+I want a poster hub page with optional themes
+so that I can browse posters by area of interest","• List all posters
+• Optional theme grouping (RRS model)",,P1,,BRD L74-75
+,Story,Poster / Project Experience,Poster tiles,Attendee,Mike,"MVP, Attendee",,"As an attendee
+I want visually scannable poster tiles
+so that I can quickly decide what to open","• Tile includes title, theme/track, thumbnail, team preview
+• Click opens project detail",,P1,,BRD L74-81
+,Story,Poster / Project Experience,Project detail page,Presenter,Mike,"MVP, Presenter",,"As a presenter
+I want a structured project detail page
+so that our research is represented with high-quality digital assets","• Required: title, abstract, team list (name, title, image, email), contact
+• Optional: image, embedded video
+• Links: repos, decks, papers, project sites",,P1,,BRD L77-88
+,Story,Poster / Project Experience,Venue context & discovery,Attendee,Mike,"MVP, Attendee",,"As an attendee
+I want to locate posters within the venue
+so that I can plan my route during the event","• Location field supports room/booth/floor
+• Search/browse by area/title/location",,P1,,"BRD L118,L111"
+,Story,Bookmarking & QR,Generate QR codes for projects,Organizer,Mike,"MVP, Organizer",,"As an organizer
+I want auto-generated QR codes for each project
+so that attendees can bookmark quickly at the poster","• Assign human-readable project IDs
+• QR resolves to project detail page",,P1,,BRD L111
+,Story,Bookmarking & QR,Scan to bookmark,Attendee,Mike,"MVP, Attendee",,"As an attendee
+I want to scan a poster's QR code and add it to my bookmarks
+so that I can revisit it post-event","• Scan creates bookmark
+• Confirmation toast/state change",,P1,,BRD L111
+,Story,Bookmarking & QR,Bookmark list & post-event access,Attendee,Mike,"MVP, Attendee",,"As an atendee
+I want a personal list of bookmarked projects
+so that I can follow up after the event","• 'My Bookmarks' page
+• Quick links to repos, papers, contacts",,P1,Core,BRD L111
+,Story,"KPIs, Analytics & Launch Readiness",Pre-event unique users,Product Owner,Jeff,"MVP, Product Owner",,"As a product owner
+I want metrics on pre-event visits
+so that we can measure early planning behavior",• Report: % registered/expected attendees visiting before Day 1,,P2,Core,BRD L109
+,Story,"KPIs, Analytics & Launch Readiness",Post-event unique users,Product Owner,Jeff,"MVP, Product Owner",,"As a product owner
+I want post-event traffic metrics
+so that we can gauge durability of content",• Report: % of promoted audience visiting within 7/30 days,,P2,Core,BRD L109
+,Story,"KPIs, Analytics & Launch Readiness",Extended-reach users,Product Owner,Jeff,"MVP, Product Owner",,"As a product owner
+I want geo/time-zone reach metrics
+so that we can validate value beyond live attendance",• Report: % unique users outside primary geo/time zone,,P2,Core,BRD L109
+,Story,"KPIs, Analytics & Launch Readiness",Connections/leads initiated,Product Owner,Jeff,"MVP, Product Owner",,"As a product owner
+I want to track follow-up actions
+so that we can measure collaboration sparks","• Count email/contact clicks, repo visits, asset downloads",,P2,Core,BRD L109
+,Story,"KPIs, Analytics & Launch Readiness",Adobe Analytics 1DS Configuration,Product Owner,Mike,"MVP, Product Owner",,"As a product owner
+I want to ensure that we have metrics captured on all pages in the app
+so that we can measure engagement",• 1DS code is present and working,,P2,Core,N/A
+,Story,"KPIs, Analytics & Launch Readiness",Platform KPIs,Program Owner,Jeff,"MVP, Program Owner",,"As a program owner
+I want platform adoption metrics
+so that we can aim for default usage across MSR","• Events onboarded/quarter
+• Repeat program usage %
+• Organizer self-service rate
+• Post-event content usage %
+• Cross-event engagement %",,P2,Core,BRD L110
+,Story,MVP Authoring Agent (stretch goal),AI abstract assist (poster upload),Presenter,Peter,"MVP, Presenter",,"As a presenter
+I want to upload a poster PDF and receive suggested abstract edits
+so that our summary is clear and consistent","• Upload triggers AI suggestions
+• Presenter approves/modifies",,P2,Core,BRD L91-94
+,Story,MVP Event Agent (stretch goal),Base chat/copilot (event scope),Attendee,Peter,"MVP, Attendee",,"As an attendee
+I want a simple chat based on abstracts
+so that I can explore research at a high level","• Q&A constrained to published abstracts/metadata
+• Labeled 'beta'",,P2,Core,BRD L91-94

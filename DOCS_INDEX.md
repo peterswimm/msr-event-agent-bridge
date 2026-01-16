@@ -1,6 +1,6 @@
 # MSR Event Agent Bridge - Documentation Index
 
-**Last Updated**: January 14, 2026 | **Status**: Production Ready (Phases 1-2) + Planned (Phases 3-4)
+**Last Updated**: January 15, 2026 | **Status**: Production Ready (Phases 1-2) + Planned (Phases 3-4) | **Archive**: [docs/archive/](./docs/archive/) for legacy versions
 
 ---
 
@@ -14,71 +14,72 @@
    - Local development setup
    - Docker deployment
 
-2. **[docs/QUICK_START.md](./docs/QUICK_START.md)** - Detailed setup
-   - Step-by-step local development
-   - Docker Compose full-stack
-   - First API request
-   - Common config tasks
+2. **[docs/INTEGRATION_GUIDE.md](./docs/INTEGRATION_GUIDE.md)** - Setup, integration, and deployment
+   - Complete local development setup (2-5 minutes)
+   - Making your first API calls
+   - Frontend integration patterns
+   - Azure AI Foundry infrastructure
+   - Docker deployment
+   - Production configuration
+   - Troubleshooting
 
-### 🏛️ System Design
+### 🏛️ System Design & Operations
 
-- **[docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md)** - System architecture
-  - Platform diagram and components
-  - Data models and relationships
-  - API endpoints overview
-  - Security architecture
-  - Performance patterns
+- **[docs/OPERATIONS_REFERENCE.md](./docs/OPERATIONS_REFERENCE.md)** - Unified operations reference (60+ min read)
+  - **System Architecture**: Components, data models, auth flow, workflows, configuration, deployment
+  - **Complete API Reference**: All endpoints, authentication, request/response examples, error handling
+  - **RBAC & Authorization**: Role hierarchy, permission matrices, endpoint access by role, authorization flow
+  - **Troubleshooting Guide**: Gateway issues, backend issues, auth errors, database problems, CMK issues
+  - **Production Deployment**: Infrastructure setup, application deployment, monitoring, scaling, security
+  - **Monitoring & Observability**: Key metrics, Application Insights queries, alerting, logging
+  - **Security**: At-rest encryption, in-transit encryption, access control, audit logging
 
-### 🚢 Production Operations
-
-- **[docs/DEPLOYMENT_RUNBOOK.md](./docs/DEPLOYMENT_RUNBOOK.md)** - Complete ops guide
-  - Pre-deployment checklists
-  - Azure App Service deployment
-  - Kubernetes (AKS) deployment
-  - CI/CD pipelines with GitHub Actions
-  - Monitoring and alerting
-  - Incident response and scaling
-  - **Upcoming**: Phase 3 & 4 implementation guides
+- **[docs/AZURE_AI_FOUNDRY_SETUP.md](./docs/AZURE_AI_FOUNDRY_SETUP.md)** - Secure Azure AI infrastructure
+  - Private networking (VNet, private endpoints, DNS)
+  - Azure OpenAI deployment (GPT-4, GPT-3.5, embeddings)
+  - Managed identities, RBAC, and CMK configuration
+  - Monitoring, diagnostics, and cost optimization
 
 ### 🔌 API & Integration
 
-- **[docs/API_REFERENCE.md](./docs/API_REFERENCE.md)** - Complete API documentation
-  - All endpoints with examples
-  - Request/response formats
-  - Authentication methods
-  - Error handling
-  - Pagination and filtering
-  - SDK examples (Python, Node.js, JavaScript)
+- **[docs/INTEGRATION_GUIDE.md](./docs/INTEGRATION_GUIDE.md)** - Complete integration reference (30 min read)
+  - Frontend SDK patterns and implementation
+  - React hooks and custom integrations
+  - Azure AI Foundry setup and configuration
+  - Docker deployment with full stack
+  - Production deployment on Azure
+  - Authentication and error handling
 
-- **[docs/INTEGRATION_GUIDE.md](./docs/INTEGRATION_GUIDE.md)** - Frontend integration
-  - How to connect your app
-  - Example: ShowcaseApp
-  - Custom frontend examples
-  - React hooks and utilities
-  - Testing and debugging
-  - Azure AD integration
+- **[docs/OPERATIONS_REFERENCE.md](./docs/OPERATIONS_REFERENCE.md)** - API reference (included section)
+  - All endpoints with request/response examples
+  - Authentication and token generation
+  - OData filtering and pagination
+  - Event, session, project, knowledge artifact endpoints
+  - Chat and search endpoints
 
 ### 📋 Reference Materials
 
-- **[docs/RBAC_MATRIX.md](./docs/RBAC_MATRIX.md)** - Role-based access control
-  - User roles and definitions
-  - Permission matrix
-  - Endpoint access by role
-  - Authorization examples
-
-- **[docs/TROUBLESHOOTING.md](./docs/TROUBLESHOOTING.md)** - Issues & solutions
-  - 25+ problem scenarios
-  - Diagnostic procedures
-  - Quick fixes
-  - Escalation paths
+- **[docs/COMPLIANCE.md](./docs/COMPLIANCE.md)** - Security, privacy, and Responsible AI gates
+  - Required signoffs (RAI, Legal, Privacy, Accessibility, Security)
+  - Feature-to-compliance mapping
+  - Continuous compliance guidance
 
 ### 📅 Planning & Roadmap
 
-- **[docs/PROJECT_ROADMAP.md](./docs/PROJECT_ROADMAP.md)** - Status & timeline
-  - Component completion metrics
-  - Next milestones
-  - Team responsibilities
-  - Schedule and timeline
+- **[docs/PROJECT_ROADMAP_CONSOLIDATED.md](./docs/PROJECT_ROADMAP_CONSOLIDATED.md)** - Complete project roadmap & phase planning (60+ min read)
+  - MSR India TAB MVP launch (Jan 24, 2026) - scope, blockers, compliance
+  - Phase 1-4 timelines (Jan-Jun 2026)
+  - Feature tracking and implementation plans
+  - Azure AI Foundry infrastructure requirements
+  - Production readiness assessment
+  - Risk assessment and success metrics by phase
+  - *(Consolidated from PHASE_3_4_COMPLETION.md and PROJECT_ROADMAP.md)*
+
+- **[docs/MSR Event Hub BRD.md](./docs/MSR%20Event%20Hub%20BRD.md)** - Business requirements and MVP goals
+- **[docs/MSR Event Hub BRD Engineering.md](./docs/MSR%20Event%20Hub%20BRD%20Engineering.md)** - Engineering governance and AI guardrails
+- **[docs/AZURE_AI_FOUNDRY_INTEGRATION_SUMMARY.md](./docs/AZURE_AI_FOUNDRY_INTEGRATION_SUMMARY.md)** - Integration highlights and phase readiness
+- **[docs/COMPLETION_REPORT_AZURE_AI_FOUNDRY.md](./docs/COMPLETION_REPORT_AZURE_AI_FOUNDRY.md)** - Deliverable inventory for Azure AI requirements
+- **[docs/MSR_EventHub_Features and Stories.csv](./docs/MSR_EventHub_Features%20and%20Stories.csv)** - Backlog export with priorities and owners
 
 ---
 
@@ -86,10 +87,10 @@
 
 | Role | Start With |
 |------|-----------|
-| **Developer** | [README.md](./README.md) → [docs/QUICK_START.md](./docs/QUICK_START.md) → [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) |
-| **Frontend Engineer** | [docs/INTEGRATION_GUIDE.md](./docs/INTEGRATION_GUIDE.md) → [docs/API_REFERENCE.md](./docs/API_REFERENCE.md) |
-| **DevOps/SRE** | [docs/DEPLOYMENT_RUNBOOK.md](./docs/DEPLOYMENT_RUNBOOK.md) → [infra/main.bicep](./infra/main.bicep) |
-| **Product Manager** | [README.md](./README.md) → [docs/PROJECT_ROADMAP.md](./docs/PROJECT_ROADMAP.md) |
+| **Developer** | [README.md](./README.md) → [docs/INTEGRATION_GUIDE.md](./docs/INTEGRATION_GUIDE.md) → [docs/OPERATIONS_REFERENCE.md](./docs/OPERATIONS_REFERENCE.md) |
+| **Frontend Engineer** | [docs/INTEGRATION_GUIDE.md](./docs/INTEGRATION_GUIDE.md) → [docs/OPERATIONS_REFERENCE.md](./docs/OPERATIONS_REFERENCE.md) (API section) |
+| **DevOps/SRE** | [docs/OPERATIONS_REFERENCE.md](./docs/OPERATIONS_REFERENCE.md) (Deployment section) → [infra/main.bicep](./infra/main.bicep) |
+| **Product Manager** | [README.md](./README.md) → [docs/PROJECT_ROADMAP_CONSOLIDATED.md](./docs/PROJECT_ROADMAP_CONSOLIDATED.md) |
 
 ---
 
@@ -122,7 +123,7 @@ msr-event-agent-bridge/
 │   ├── generate-token.ts              # JWT generator
 │   └── deploy-*.sh                    # Deployment scripts
 │
-├── docs/                              # Documentation
+├── docs/                              # Documentation (current)
 │   ├── README.md
 │   ├── QUICK_START.md
 │   ├── ARCHITECTURE.md
@@ -132,11 +133,22 @@ msr-event-agent-bridge/
 │   ├── DEPLOYMENT_RUNBOOK.md
 │   ├── TROUBLESHOOTING.md
 │   ├── PROJECT_ROADMAP.md
-│   ├── archive/                       # Archived docs
-│   │   ├── README_OLD.md
+│   ├── AZURE_AI_FOUNDRY_SETUP.md
+│   ├── AZURE_AI_FOUNDRY_INTEGRATION_SUMMARY.md
+│   ├── COMPLETION_REPORT_AZURE_AI_FOUNDRY.md
+│   ├── COMPLIANCE.md
+│   ├── MSR Event Hub BRD.md
+│   ├── MSR Event Hub BRD Engineering.md
+│   ├── PHASE_3_4_COMPLETION.md
+│   ├── MSR_EventHub_Features and Stories.csv
+│   ├── archive/                       # Archived legacy docs
 │   │   ├── ARCHITECTURE_OLD.md
-│   │   └── cmk-implementation/
-│   └── _archive/                      # More archives
+│   │   ├── DEPLOYMENT_OLD.md
+│   │   ├── README_OLD.md
+│   │   ├── START_HERE_OLD.md
+│   │   ├── cmk-implementation-jan-2026/
+│   │   └── ...
+│   └── _archive/                      # Historical archives
 │
 ├── infra/                             # Infrastructure
 │   ├── main.bicep
@@ -254,7 +266,7 @@ When updating docs:
 
 ---
 
-**Last Updated**: January 14, 2026  
+**Last Updated**: January 15, 2026  
 **Maintained By**: MSR Platform Team  
 **Version**: 2.0 (Production Ready)
 

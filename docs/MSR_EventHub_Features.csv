@@ -1,0 +1,21 @@
+,,,,,,,
+,Need scope finalized,,,,,,
+,Stories needed,,,,,,
+,Review existing stories,,,,,,
+,Stories approved,,,,,,
+,,,,,,,
+Issue Type,Feature Name / Summary,Summary,Description,Priority,Tags,Owner,Comments
+Feature,MSR India Event Site,MSR India Event Site,"Stand up MSR India TAB site: Home, About/Logistics, Agenda, Session pages.",P1,MVP,,"Jeff is finalizing scope - see ""MSR India Scope"" tab for info"
+Feature,Poster / Project Experience,Poster / Project Experience,"Poster hub, tiles, project detail pages modeled after RRS.",P1,MVP,,"Jeff is finalizing scope - see ""MSR India Scope"" tab for info"
+Feature,Research Talks & Tracks Experience,Research Talks & Tracks Experience,Not in BRD,P1,MVP,,"Jeff is finalizing scope - see ""MSR India Scope"" tab for info"
+Feature,Baseline Admin Experience,Baseline Admin Experience,Admin parity with RRS: hub/event/session/poster management.,P1,MVP,,Stories may be stale since our call. Need user roles and associated permissions defined.
+Feature,Security,Compliance,,P1,Core,,"Mike to split ""Scaffold"" for security stories"
+Feature,Event Data Model,Event Data Model,Taxonomy,P0,Core,,"Need Appendix B Entities verified: Posters, Sessions (data type)"
+Feature,Resnet Integration,Resnet Integration,,P0,Core,,Same as RSS
+Feature,Compliance,Compliance,,P1,Core,,Release Tracker
+Feature,MSR Event Hub Scaffold,MSR Event Hub Scaffold,"Stand up core, scalable multi event code base replacing the RRS POC infrastructure",P0,Core,,
+Feature,MSR Events Homepage,MSR Events Homepage,Provide central multi-event homepage with v1 link-outs.,P1,MVP,,
+Feature,Bookmarking & QR,Bookmarking & QR,"QR codes, scan-to-bookmark, personal bookmark list.",P1,MVP,,
+Feature,Authoring Agent (stretch goal),MVP Authoring Agent,,P2,Stretch,,Rename to Event Concierge?
+Feature,Event Agent (stretch goal),MVP Event Agent,AI-assisted abstracts and base chat/copilot (stretch).,P2,Stretch,,
+Feature,"KPIs, Analytics & Launch Readiness",KPIs & Analytics,Instrumentation for MVP + platform KPIs and reporting.,P0,Core,,

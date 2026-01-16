@@ -566,10 +566,10 @@ Once infrastructure is provisioned, update `.env`:
 AZURE_OPENAI_ENDPOINT=https://aoai-msr-eventhub-prod.openai.azure.com/
 AZURE_OPENAI_API_KEY=<your-key-from-above>
 
-# Model deployments (2026 - optimized for cost & performance)
-AZURE_OPENAI_DEPLOYMENT_GPT4=gpt-5              # GA 2025-08-07: 40% cheaper, better reasoning, 400K context
-AZURE_OPENAI_DEPLOYMENT_GPT4_FALLBACK=gpt-5-mini  # GA 2025-08-07: 60% cheaper, lightweight queries  
-AZURE_OPENAI_DEPLOYMENT_EMBEDDING=text-embedding-3-large  # GA 2024-10: 44% better multi-lang (MIRACL)
+# Model deployments
+AZURE_OPENAI_DEPLOYMENT_GPT4=gpt-4-turbo
+AZURE_OPENAI_DEPLOYMENT_GPT35=gpt-35-turbo
+AZURE_OPENAI_DEPLOYMENT_EMBEDDING=text-embedding-ada
 
 # Identity
 AZURE_CLIENT_ID=<managed-identity-client-id>
@@ -581,103 +581,6 @@ AZURE_KEYVAULT_ENDPOINT=https://kv-msr-eventhub-ai-prod.vault.azure.net/
 
 ---
 
-## Deterministic vs GenAI Switchboard
-
-This section defines how to choose between deterministic responses (pure REST/data lookups) and GenAI (Azure OpenAI via Foundry) at config and request levels, and what telemetry and headers are required to keep governance dashboards accurate.
-
-### What this controls
-- Deterministic path: event/session/project/knowledge endpoints return structured site data without LLMs. Predictable, low cost, citation-first.
-- GenAI path: chat/LLM operations (streaming) via Azure OpenAI deployments. Higher flexibility; governed by DOSA/PKA and telemetry.
-
-### Tuning knobs
-- Env-level model selection (cost/quality):
-  - `AZURE_OPENAI_DEPLOYMENT_GPT4` (primary, e.g., `gpt-5`)
-  - `AZURE_OPENAI_DEPLOYMENT_GPT4_FALLBACK` (fallback, e.g., `gpt-5-mini`)
-  - `AZURE_OPENAI_DEPLOYMENT_EMBEDDING` (embeddings)
-- Per-request hints (backend interprets; bridge forwards headers):
-  - Header `X-GenAI-Mode: deterministic|genai|auto` (suggests path)
-  - Header `X-Deterministic-Only: true` (force deterministic; P0-safe)
-  - Header `X-Event-Slug: <event>` (scope safety and citations)
-- Fallback policy (backend logic):
-  - On model error/timeout/high latency, fall back to `AZURE_OPENAI_DEPLOYMENT_GPT4_FALLBACK`.
-  - If DOSA refusal triggers repeatedly or no sources found → switch to deterministic with a clear refusal copy.
-- Safe/DOSA mode (always-on):
-  - Fail-closed on content filter triggers; never auto-regenerate without new user input.
-  - Emit `ai_content_refusal` and include refusal reason in governance metrics.
-- PKA (Phase 2+):
-  - Draft-only checks; never auto-approve; include disclaimer in responses.
-
-### Telemetry contract (required fields)
-The backend must emit the following (bridge already initializes 1DS and forwards IDs):
-- `ai_governance_metric` properties: `conversationId`, `userId` (or `anonymous`), `modelDeployment`, `completionStatus`, `wasRefused`.
-- Measurements: `inputTokens`, `outputTokens`, `responseLatencyMs`, `editPercentage` (if known), `responseLength`.
-- Additional events when applicable: `ai_content_refusal`, `ai_edit_action`, `rate_limit_exceeded`.
-
-### Headers forwarded by the bridge (chat proxy)
-The gateway forwards these to the backend for logging and scoping:
-- `X-Correlation-ID` (trace join)
-- `X-User-ID`, `X-User-Email`, `X-User-Roles`
-
-### Functional requirements (current code)
-- Bridge stays model-agnostic; it proxies `/chat` to the backend and preserves streaming. The backend decides deterministic vs GenAI.
-- Deterministic path uses `/v1/...` REST endpoints (events/projects/knowledge) and must cite site sources.
-- GenAI path uses Azure OpenAI deployments configured via env; switch/rollback without code changes.
-- Governance must be preserved: refusals, edits, latency, tokens recorded with correlation and user context.
-
-### Example configurations
-Use lower-cost defaults and a resilient fallback:
-```env
-AZURE_OPENAI_DEPLOYMENT_GPT4=gpt-5
-AZURE_OPENAI_DEPLOYMENT_GPT4_FALLBACK=gpt-5-mini
-AZURE_OPENAI_DEPLOYMENT_EMBEDDING=text-embedding-3-large
-```
-
-### Example request flows
-- Force deterministic:
-  - Client → Bridge → Backend `/api/chat` with `X-Deterministic-Only: true` → Backend uses structured data only; emits governance metrics with `modelDeployment=deterministic`.
-- Auto with fallback:
-  - Client → Bridge → Backend `/api/chat` (no hint) → Backend uses `gpt-5`; on timeout/error, falls back to `gpt-5-mini`; emits `ai_model_error` and full `ai_governance_metric` for both attempts.
-
----
-
-## Error Handling & Human Escalation
-
-This playbook standardizes user-facing messages, retry behavior, telemetry, and escalation paths.
-
-### HTTP → UX Mapping
-- 401/403 (Auth): prompt sign-in. Button: "Sign in". Avoid retry until auth present.
-- 404 (Not found): suggest alternate filters/titles. Button: "Open agenda" or "Search posters".
-- 429 (Rate limit): exponential backoff with jitter (base 1–2s, max 30s). Buttons: "Try again", "Reduce request scope". Emit `rate_limit_exceeded`.
-- 408/5xx (Timeout/Server): retry once after 2–5s; then offer status and feedback. Buttons: "Try again", "Open status page", "Open feedback form".
-- DOSA refusal (content filter): fail-closed; show allowed scope; do not auto-regenerate. Emit `ai_content_refusal` and `ai_governance_metric` with `wasRefused=true`.
-- Cross-event/Forbidden scope: prompt event switch. Button: "Switch event".
-
-### Human Escalation Rules
-- Offer human options immediately when user asks ("human", "contact", "support").
-- Auto-offer after 2 consecutive failures of the same type within 60s.
-- Preferred order: Event organizer contact → Feedback form → Support email.
-
-### Telemetry Requirements
-- Every error path must include `X-Correlation-ID` and emit a corresponding event:
-  - 429 → `rate_limit_exceeded` (endpoint, limitType, counts, retryAfter)
-  - GenAI error/timeout → `ai_model_error` (modelDeployment, errorStatus)
-  - Refusal → `ai_content_refusal` plus `ai_governance_metric`
-  - Human clicks → `connection_initiated` (`connection_type`, `target_id` if known)
-
-### Optional Environment Variables
-Add these to simplify human escalation wiring (read by frontend/backend as needed):
-```env
-SUPPORT_EMAIL=msr-eventhub-support@microsoft.com
-SUPPORT_URL=https://aka.ms/msr-eventhub-feedback
-STATUS_PAGE_URL=https://aka.ms/msr-eventhub-status
-```
-
-### Recommended Client Behavior
-- For `/chat` requests, preserve headers and surface recovery buttons in the error card.
-- Respect `Retry-After` headers when present for 429.
-- After a DOSA refusal, suggest scoped queries and surface organizer contact if the user persists.
-
----
 ## Docker Integration
 
 ### Run Full Stack with Docker Compose
