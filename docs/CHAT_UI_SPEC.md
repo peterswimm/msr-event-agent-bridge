@@ -66,53 +66,53 @@ The MVP chat experience supports 15 primary actions, enumerated below by phase a
 
 #### Phase 1: India MVP (Jan 24) — 15 Core Actions
 
-| # | Action | Category | Description |
-|---|--------|----------|-------------|
-| 1 | View today's agenda | Browse & Discover | List today's sessions by time, location, track; show current session |
-| 2 | Browse all sessions | Browse & Discover | Full agenda with filters (track, time, speaker); search by keyword |
-| 3 | Browse poster gallery | Browse & Discover | Grid/carousel of posters with themes; filter by topic/track |
-| 4 | View poster detail | Browse & Discover | Title, abstract, team, image, links (code, papers, decks, repos); QR bookmark hint |
-| 5 | View session detail | Session & Poster Details | Title, abstract, speaker, time/location/duration, track, slides/paper/repo links, recording links (after event) |
-| 6 | View speaker contact | Session & Poster Details | Name, title, MSR affiliation, email/contact link; optional image |
-| 7 | View team contact | Session & Poster Details | List of team members with names, titles, email links, optional images |
-| 8 | Access asset links | Session & Poster Details | Direct links to papers, decks, code repos, supplementary resources |
-| 9 | Bookmark session/poster | Interaction & Bookmarking | Save to personal bookmarks; QR scan triggers bookmark (Phase 1 stub; persistence in Phase 2) |
-| 10 | Copy session/poster link | Interaction & Bookmarking | Generate shareable URL for email/messaging |
-| 11 | Download poster PDF | Interaction & Bookmarking | Download poster for reference (if available) |
-| 12 | Share poster/session | Interaction & Bookmarking | Email or messaging integration to share with colleagues |
-| 13 | Report an issue | Support & Navigation | Feedback form or contact link for event issues |
-| 14 | Contact organizer | Support & Navigation | Link to event organizer page/email |
-| 15 | Navigate to main event page | Support & Navigation | Return to home/agenda/poster hub |
+| # | Action | Category | UI Element | Example Command |
+|---|--------|----------|------------|-----------------|
+| 1 | View today's agenda | Browse & Discover | Quick-action button "Today's agenda" | "What's on today?" or "Show today's schedule" |
+| 2 | Browse all sessions | Browse & Discover | Quick-action button "Browse all sessions" | "Show me all sessions" or "List all talks" |
+| 3 | Browse poster gallery | Browse & Discover | Quick-action button "Browse posters" or clickable poster carousel | "Show poster gallery" or "Find posters" |
+| 4 | View poster detail | Browse & Discover | Clickable poster tile or card link | "Tell me about [poster name]" or "Show poster details" |
+| 5 | View session detail | Session & Poster Details | Clickable session title or agenda row | "Tell me about [session name]" or "Session details for [talk]" |
+| 6 | View speaker contact | Session & Poster Details | Clickable speaker name or avatar button | "Contact [speaker name]" or "Who is [speaker]?" |
+| 7 | View team contact | Session & Poster Details | Clickable "Team" link or team member list | "Who worked on [project]?" or "Show team for [project]" |
+| 8 | Access asset links | Session & Poster Details | Inline links block (Papers, Decks, Repos) | "Show me the paper" or "Get the code for [project]" |
+| 9 | Bookmark session/poster | Interaction & Bookmarking | Button "Bookmark" or toggle switch; QR code scan | "Save this" or "Bookmark this [session/poster]" |
+| 10 | Copy session/poster link | Interaction & Bookmarking | Button "Copy link" or share icon | "Copy the link" or "Get a shareable link" |
+| 11 | Download poster PDF | Interaction & Bookmarking | Button "Download PDF" or download icon | "Download the poster" or "Get the PDF" |
+| 12 | Share poster/session | Interaction & Bookmarking | Button "Share" with email/messaging menu | "Share this with [colleague]" or "Send to email" |
+| 13 | Report an issue | Support & Navigation | Button "Report issue" or link | "Something's broken" or "Report a problem" |
+| 14 | Contact organizer | Support & Navigation | Button "Contact organizer" or link | "How do I reach the organizer?" or "Email the organizer" |
+| 15 | Navigate to main event page | Support & Navigation | Breadcrumb link "Home" or button "Back" | "Go back to home" or "Return to agenda" |
 
 ---
 
 #### Phase 2: Multi-Event & PKA Draft (Mar 3) — Extended Actions
 
-| # | Action | Category | Description |
-|---|--------|----------|-------------|
-| 16 | Switch active event | Event & Bookmark Management | Select from multiple events (Project Green, Whiteboard Wednesdays); confirm context |
-| 17 | View saved bookmarks | Event & Bookmark Management | List of bookmarks per event; persistent across sessions |
-| 18 | Remove bookmark | Event & Bookmark Management | Unsave items from bookmark list |
-| 19 | Run PKA draft check | PKA & Knowledge Synthesis | Submit project content; receive draft-only checklist (Heilmeier questions, evidence, maturity) |
-| 20 | View project FAQ | PKA & Knowledge Synthesis | Agent-synthesized Q&A based on project abstract and team details |
-| 21 | View project overview | PKA & Knowledge Synthesis | Agent-generated summary (2–3 paragraph structured overview) |
-| 22 | Find similar projects | Multi-Event Discovery | Across events, suggest related posters/sessions by topic or team |
-| 23 | Filter results to one event | Multi-Event Discovery | Scope multi-event queries back to single event |
+| # | Action | Category | UI Element | Example Command |
+|---|--------|----------|------------|-----------------|
+| 16 | Switch active event | Event & Bookmark Management | Dropdown or pill-style event selector; confirm modal | "Switch to [Event name]" or "Show me Project Green" |
+| 17 | View saved bookmarks | Event & Bookmark Management | Quick-action button "My bookmarks" or card list | "Show my bookmarks" or "What did I save?" |
+| 18 | Remove bookmark | Event & Bookmark Management | Bookmark toggle/heart icon on saved items | "Unsave this" or "Remove from bookmarks" |
+| 19 | Run PKA draft check | PKA & Knowledge Synthesis | Button "Run draft check" or "Assess this project" | "Check this project" or "Run PKA checklist" |
+| 20 | View project FAQ | PKA & Knowledge Synthesis | Collapsible accordion card or "FAQ" tab | "What questions does this project answer?" or "Show FAQ" |
+| 21 | View project overview | PKA & Knowledge Synthesis | Card panel with "Heilmeier-style" summary section | "Summarize this project" or "Give me an overview" |
+| 22 | Find similar projects | Multi-Event Discovery | Recommendation card "Similar projects" or search results | "Find similar projects" or "What else is like this?" |
+| 23 | Filter results to one event | Multi-Event Discovery | Filter chip or dropdown "Show only [Event]" | "Filter to [Event name]" or "Just show this event" |
 
 ---
 
 #### Phase 3–4: Cross-Event & Recommendations (Apr–Jun) — Advanced Actions
 
-| # | Action | Category | Description |
-|---|--------|----------|-------------|
-| 24 | Find talks on [topic] | Cross-Event Search | Search across multiple events; return top 5 with source event labels |
-| 25 | Find researchers by name/affiliation | Cross-Event Search | Cross-event speaker/author lookup |
-| 26 | Browse by research area | Cross-Event Search | Category-based discovery across all events |
-| 27 | View engagement stats | Analytics & Recommendations | Post-event: attendance, bookmarks, repeat views per session/poster |
-| 28 | Get personalized recommendations | Analytics & Recommendations | "Based on your bookmarks/interests, you might also like…" with rationale |
-| 29 | Download engagement report | Analytics & Recommendations | CSV/PDF export of event stats (authorized roles only) |
-| 30 | View admin dashboard | Administrator Actions | Event status, submission stats, bookmark metrics, compliance flags |
-| 31 | Manage event submissions | Administrator Actions | Organizer tools: review/approve poster data, assign QRs, validate content |
+| # | Action | Category | UI Element | Example Command |
+|---|--------|----------|------------|-----------------|
+| 24 | Find talks on [topic] | Cross-Event Search | Search input with autocomplete; results list card | "Find talks about [AI/optimization/etc]" or "Show me everything on [topic]" |
+| 25 | Find researchers by name/affiliation | Cross-Event Search | Search input or faceted filter "Researchers"; avatar + name results | "Find [researcher name]" or "Show me all papers by [author]" |
+| 26 | Browse by research area | Cross-Event Search | Category pills (Machine Learning, Systems, etc.) or tree navigation | "Show me [research area]" or "Browse Machine Learning projects" |
+| 27 | View engagement stats | Analytics & Recommendations | Card panel with metrics (attendance, bookmarks, views); sparklines | "How many people watched this?" or "Show engagement for [session]" |
+| 28 | Get personalized recommendations | Analytics & Recommendations | Recommendation card "Based on your interests..." with related items | "What should I watch next?" or "Give me recommendations" |
+| 29 | Download engagement report | Analytics & Recommendations | Button "Download report" with format selector (CSV/PDF) | "Download the report" or "Export attendance data" |
+| 30 | View admin dashboard | Administrator Actions | Sidebar or tab link "Admin"; dashboard grid with KPI cards | "Show me the dashboard" or "Admin tools" |
+| 31 | Manage event submissions | Administrator Actions | Admin panel with submission queue, approve/reject buttons; data grid | "Show pending submissions" or "Review poster submissions" |
 
 ---
 
