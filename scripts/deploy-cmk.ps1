@@ -75,8 +75,8 @@ else {
 Write-Host ""
 Write-Host "🔍 Validating Bicep template..." -ForegroundColor Yellow
 
-$templatePath = Join-Path $PSScriptRoot "main.bicep"
-$paramPath = Join-Path $PSScriptRoot $ParameterFile
+$templatePath = Join-Path $PSScriptRoot ".." "infra" "main.bicep"
+$paramPath = Join-Path $PSScriptRoot ".." "infra" $ParameterFile
 
 if (-not (Test-Path $templatePath)) {
     Write-Host "❌ Bicep template not found at: $templatePath" -ForegroundColor Red
