@@ -1,0 +1,205 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.39.26.7824",
+      "templateHash": "14975033560635628944"
+    },
+    "description": "Customer-Managed Keys (CMK) infrastructure for MSR Event Hub Bridge",
+    "author": "MSR Event Hub Team"
+  },
+  "parameters": {
+    "environment": {
+      "type": "string",
+      "defaultValue": "dev",
+      "metadata": {
+        "description": "Environment name (dev, staging, prod)"
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Azure region for all resources"
+      }
+    },
+    "appName": {
+      "type": "string",
+      "defaultValue": "event-hub-bridge",
+      "metadata": {
+        "description": "Application name"
+      }
+    },
+    "keyVaultName": {
+      "type": "string",
+      "defaultValue": "[format('kv-{0}-{1}-{2}', parameters('appName'), parameters('environment'), uniqueString(resourceGroup().id))]",
+      "metadata": {
+        "description": "Key Vault name (must be globally unique)"
+      }
+    },
+    "keySize": {
+      "type": "int",
+      "defaultValue": 2048,
+      "metadata": {
+        "description": "RSA key size (2048, 3072, or 4096)"
+      }
+    },
+    "cmkKeyName": {
+      "type": "string",
+      "defaultValue": "event-hub-cmk",
+      "metadata": {
+        "description": "CMK key name"
+      }
+    },
+    "enableSoftDelete": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "Enable Key Vault soft delete (required for CMK)"
+      }
+    },
+    "enablePurgeProtection": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "Enable Key Vault purge protection (required for CMK)"
+      }
+    },
+    "softDeleteRetentionInDays": {
+      "type": "int",
+      "defaultValue": 90,
+      "metadata": {
+        "description": "Days to retain soft-deleted keys"
+      }
+    },
+    "managedIdentityName": {
+      "type": "string",
+      "defaultValue": "[format('mi-{0}-{1}', parameters('appName'), parameters('environment'))]",
+      "metadata": {
+        "description": "Managed identity name for the App Service"
+      }
+    }
+  },
+  "variables": {
+    "keyVaultRoleId": "12338af0-0e69-4776-a894-a57eca8541a3"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.KeyVault/vaults",
+      "apiVersion": "2024-04-01-preview",
+      "name": "[parameters('keyVaultName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "enabledForDeployment": true,
+        "enabledForDiskEncryption": true,
+        "enabledForTemplateDeployment": true,
+        "enableSoftDelete": "[parameters('enableSoftDelete')]",
+        "softDeleteRetentionInDays": "[parameters('softDeleteRetentionInDays')]",
+        "enablePurgeProtection": "[parameters('enablePurgeProtection')]",
+        "tenantId": "[subscription().tenantId]",
+        "sku": {
+          "family": "A",
+          "name": "standard"
+        },
+        "accessPolicies": []
+      }
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults/keys",
+      "apiVersion": "2024-04-01-preview",
+      "name": "[format('{0}/{1}', parameters('keyVaultName'), parameters('cmkKeyName'))]",
+      "properties": {
+        "kty": "RSA",
+        "keySize": "[parameters('keySize')]",
+        "keyOps": [
+          "encrypt",
+          "decrypt",
+          "sign",
+          "verify",
+          "wrapKey",
+          "unwrapKey"
+        ],
+        "attributes": {
+          "enabled": true
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+      "apiVersion": "2023-01-31",
+      "name": "[parameters('managedIdentityName')]",
+      "location": "[parameters('location')]"
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2022-04-01",
+      "scope": "[format('Microsoft.KeyVault/vaults/{0}', parameters('keyVaultName'))]",
+      "name": "[guid(resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName')), resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('managedIdentityName')), variables('keyVaultRoleId'))]",
+      "properties": {
+        "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', variables('keyVaultRoleId'))]",
+        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('managedIdentityName')), '2023-01-31').principalId]",
+        "principalType": "ServicePrincipal"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]",
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('managedIdentityName'))]"
+      ]
+    }
+  ],
+  "outputs": {
+    "keyVaultUri": {
+      "type": "string",
+      "metadata": {
+        "description": "Key Vault URI for connecting clients"
+      },
+      "value": "[reference(resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName')), '2024-04-01-preview').vaultUri]"
+    },
+    "cmkKeyName": {
+      "type": "string",
+      "metadata": {
+        "description": "CMK key name"
+      },
+      "value": "[parameters('cmkKeyName')]"
+    },
+    "cmkKeyVersion": {
+      "type": "string",
+      "metadata": {
+        "description": "CMK key version (latest)"
+      },
+      "value": "[reference(resourceId('Microsoft.KeyVault/vaults/keys', parameters('keyVaultName'), parameters('cmkKeyName')), '2024-04-01-preview').keyUriWithVersion]"
+    },
+    "managedIdentityId": {
+      "type": "string",
+      "metadata": {
+        "description": "Managed identity resource ID"
+      },
+      "value": "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('managedIdentityName'))]"
+    },
+    "managedIdentityPrincipalId": {
+      "type": "string",
+      "metadata": {
+        "description": "Managed identity principal ID (for RBAC assignments)"
+      },
+      "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('managedIdentityName')), '2023-01-31').principalId]"
+    },
+    "managedIdentityClientId": {
+      "type": "string",
+      "metadata": {
+        "description": "Managed identity client ID"
+      },
+      "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('managedIdentityName')), '2023-01-31').clientId]"
+    },
+    "keyVaultResourceId": {
+      "type": "string",
+      "metadata": {
+        "description": "Key Vault resource ID"
+      },
+      "value": "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+    }
+  }
+}

@@ -6,6 +6,29 @@ const logger = pino();
 const router = Router();
 
 const BACKEND_URL = process.env.KNOWLEDGE_API_URL || 'http://localhost:8000';
+const DELEGATE_TO_FOUNDRY = (process.env.DELEGATE_TO_FOUNDRY || 'false').toLowerCase() === 'true';
+const FOUNDRY_REQUIRED_ROLE = process.env.FOUNDRY_REQUIRED_ROLE || '';
+
+function isFoundryAllowed(req: Request): boolean {
+  if (!DELEGATE_TO_FOUNDRY) return false;
+
+  // Only authenticated users can request delegation
+  const auth = (req as any).auth;
+  if (!auth?.user) return false;
+
+  const hasRequestedOverride = Boolean(req.headers['x-delegate-to-foundry']) || Boolean(req.query?.foundry);
+  if (!hasRequestedOverride) return false;
+
+  // Optional role gating
+  if (FOUNDRY_REQUIRED_ROLE) {
+    const roles: string[] = auth.user.roles || [];
+    if (!roles.includes(FOUNDRY_REQUIRED_ROLE)) {
+      return false;
+    }
+  }
+
+  return true;
+}
 
 /**
  * Chat proxy route
@@ -32,6 +55,14 @@ router.use(
         
         if (req.auth.user.roles?.length) {
           proxyReq.setHeader('X-User-Roles', req.auth.user.roles.join(','));
+        }
+      }
+
+      // Foundry delegation opt-in (feature-flagged)
+      if (isFoundryAllowed(req)) {
+        proxyReq.setHeader('X-Delegate-To-Foundry', '1');
+        if (req.query?.debug === '1' || req.headers['x-debug'] === '1') {
+          proxyReq.setHeader('X-Debug', '1');
         }
       }
 

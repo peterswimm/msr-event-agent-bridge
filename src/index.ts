@@ -79,7 +79,13 @@ app.use(cors({
     }
   },
   credentials: true,
-  optionsSuccessStatus: 200
+  optionsSuccessStatus: 200,
+  allowedHeaders: [
+    'Content-Type',
+    'Authorization',
+    'X-Delegate-To-Foundry',
+    'X-Debug'
+  ]
 }));
 
 // Body parsing
