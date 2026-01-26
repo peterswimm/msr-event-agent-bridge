@@ -1,8 +1,8 @@
 # Integration & Setup Guide
 
-**Version**: 2.0  
-**Last Updated**: January 15, 2026  
-**Status**: Production Ready  
+**Version**: 2.1  
+**Last Updated**: January 26, 2026  
+**Status**: Production Ready (India MVP Target Jan 24)  
 **Time to Complete**: 15 minutes (local) → 2+ hours (Azure)
 
 Complete guide for setting up the MSR Event Hub platform locally and integrating it with your frontend applications.

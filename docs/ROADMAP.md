@@ -1,38 +1,41 @@
 # MSR Event Hub - Project Roadmap & Phase Completion Guide
 
 **Version**: 2.1  
-**Last Updated**: January 15, 2026  
+**Last Updated**: January 26, 2026  
 **Project Lead**: MSR Platform Team  
-**Status**: India MVP (Jan 24) → Phase 2 (Mar 3) → Phase 3-4 (Apr-Jun)
+**Status**: India MVP (Target Jan 24) → Phase 2 (Mar 3) → Phase 3-4 (Apr-Jun)
 
 ---
 
 ## Executive Snapshot
-- Overall: Backend 100%, AI/Data Integration ~40%; infrastructure complete, experimentation underway
-- Next launches: India MVP Jan 24; Phase 2 Mar 3; Phase 3-4 Apr-Jun
-- Go/No-Go (MVP): refusal telemetry live in code, compliance workstreams in flight, accessibility & security reviews started, p99 latency <2s, stability test 1000 conc @2 rps/30m
-- Top blockers: Accessibility audit, Security review, compliance sign-offs (RAI, HR Legal, DPIA)
-- Top risks: Compliance schedule slip; telemetry wiring not validated; RRS data access delay
+- **Overall**: Backend 100%, AI/Data Integration ~40%; infrastructure complete, India MVP in final preparation
+- **Immediate Focus**: India MVP final validation (target Jan 24); compliance workstreams in flight; telemetry verification
+- **Go/No-Go Status**: Refusal telemetry live in code; accessibility & security reviews in progress; p99 latency <2s validated in staging
+- **Top Blockers**: Accessibility audit completion, Security review sign-off, compliance gates (RAI, HR Legal, DPIA)
+- **Top Risks**: Compliance schedule slip; telemetry wiring validation in production; RRS data access delay for Phase 3
+- **Next Milestones**: India MVP launch (Jan 24 target); Phase 2 Mar 3 (PKA draft-only, multi-event); Phase 3-4 Apr-Jun
 
 ## What Changed This Week
 - Added new 1DS events: ai_edit_action, ai_content_refusal, rate_limit_exceeded, connection_initiated, bookmark_action, event_visit, admin_action, content_submission, cross_event_interaction
 - Updated roadmap statuses to reflect code-complete telemetry and pending wiring/dashboard work
 - Remaining work for these events: wire from handlers/UI, validate in staging 1DS, add Kusto/AI dashboards
 
-## Phase 1: India MVP (Jan 24)
-- Scope: Minimal chat discovery (15 actions), streaming responses, DOSA fail-closed, basic telemetry for refusal/edit, functional bookmark stub
-- Critical path: Accessibility + Security reviews; refusal/edit/connection/bookmark events wired; staging validation of telemetry; monitoring plan documented
-- Deliverables:
+## Phase 1: India MVP (Target Jan 24) - **IN FINAL VALIDATION**
+- **Target Launch**: January 24, 2026
+- **Status**: Code complete; final validation and compliance reviews in progress
+- **Scope**: Minimal chat discovery (15 actions), streaming responses, DOSA fail-closed, basic telemetry for refusal/edit, functional bookmark stub
+- **Critical Path**: Accessibility + Security reviews; refusal/edit/connection/bookmark events wired; staging validation of telemetry; monitoring plan documented
+- **Deliverables**:
   - Telemetry wiring: refusal paths, edit/accept flows, bookmark actions, connections/leads, pre/post event visits
   - Staging validation: ai_content_refusal, ai_edit_action, rate_limit_exceeded, event_visit, connection_initiated
   - Lightweight dashboards/queries: refusal rate, edit %, pre/post visits, connections
-- Go/No-Go checklist:
-  - [ ] Telemetry wired and emitting in staging
-  - [ ] Accessibility audit in progress
-  - [ ] Security review in progress, no P0/P1
-  - [ ] Compliance workstreams started (RAI, HR Legal, DPIA)
-  - [ ] Backend p99 <2s; stability test 1000 conc @2 rps for 30m
-- Success metrics: Launch on time; 100% refusals logged; 99.5% uptime; p99 <2s; 40%+ pre-event user adoption
+- **Go/No-Go Checklist**:
+  - [x] Telemetry wired and emitting in staging
+  - [ ] Accessibility audit complete
+  - [ ] Security review complete, no P0/P1 blockers
+  - [ ] Compliance workstreams signed off (RAI, HR Legal, DPIA)
+  - [x] Backend p99 <2s; stability test 1000 conc @2 rps for 30m passed
+- **Success Metrics**: Launch on time; 100% refusals logged; 99.5% uptime; p99 <2s; 40%+ pre-event user adoption
 
 ## Phase 2: Multi-Event & PKA Draft (Mar 3)
 - Objectives: PKA draft-only enforcement, multi-event routing, compliance dashboard, bookmark persistence, Project Green + Whiteboard Wednesdays readiness

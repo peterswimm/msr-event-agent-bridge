@@ -1,7 +1,7 @@
 # MSR Event Hub - Operations & Reference Guide
 
-**Version**: 2.0  
-**Last Updated**: January 12, 2026  
+**Version**: 2.1  
+**Last Updated**: January 26, 2026  
 **Scope**: Complete API reference, system architecture, RBAC permissions, troubleshooting, and production deployment runbook
 
 This document consolidates all critical operational reference material for the MSR Event Hub platform, including API documentation, system design, security policies, common issues, and deployment procedures.

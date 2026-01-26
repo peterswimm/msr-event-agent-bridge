@@ -1,8 +1,8 @@
 # MSR Event Hub - Documentation Index
 
-**Platform Version**: 2.0  
-**Last Updated**: January 15, 2026  
-**Status**: Production Ready
+**Platform Version**: 2.1  
+**Last Updated**: January 26, 2026  
+**Status**: India MVP In Final Validation (Target Launch Jan 24)
 
 Complete documentation for the MSR Event Hub platform comprising two core repositories:
 
@@ -52,45 +52,77 @@ Complete documentation for the MSR Event Hub platform comprising two core reposi
 
 ### Planning & Strategy
 
-**[Project Roadmap & Phase Completion Guide](PROJECT_ROADMAP_CONSOLIDATED.md)** - Complete timeline and phase planning
+4.  **[Project Roadmap](ROADMAP.md)** - Complete timeline and phase planning
+    -   MSR India TAB MVP (Target Jan 24, 2026) - In Final Validation
+    -   Phase 2 (Mar 3, 2026) - Multi-event & PKA draft
+    -   Phase 3-4 (Apr-Jun 2026) - RRS migration, advanced features
+    -   Compliance gates, telemetry tracking, success metrics by phase
 
-5.  -   MSR India TAB MVP (Jan 24, 2026) - status, blockers, compliance requirements
-    -   Phase 1-4 timelines, deliverables, go/no-go criteria
-    -   Feature tracking and implementation plans
-    -   Azure AI Foundry infrastructure requirements
-    -   Production readiness assessment
-    -   Risk assessment and mitigation strategies
-    -   Detailed success metrics by phase
-6.  **[Azure AI Foundry Integration Summary](AZURE_AI_FOUNDRY_INTEGRATION_SUMMARY.md)** - Executive summary of infrastructure deliverables
+5.  **[Three-Repo Transition Strategy](THREE_REPO_TRANSITION_STRATEGY.md)** - ShowcaseApp → Bridge + Chat migration plan
+    -   6-month timeline (Jan-Jun 2026)
+    -   Phase-by-phase transition roadmap
+    -   Data flow evolution across repos
+    -   Rollback procedures and deployment checklist
+
+6.  **[Bridge API Specification](BRIDGE_API_SPECIFICATION.md)** - Complete REST API contract (Phase 2+)
+    -   Event, Session, Project API endpoints
+    -   Authentication, rate limiting, error handling
+    -   Response format standards
+    -   Ready for Phase 2 implementation (Mar 3+)
+
+7.  **[Feature Flag Alignment](FEATURE_FLAG_ALIGNMENT.md)** - Flag coordination across all repos
+    -   7 core flags with phase-specific values
+    -   ShowcaseApp, Bridge, Chat environment variables
+    -   Implementation patterns (TypeScript, Python)
+    -   Testing guidance per phase
+8.  **[Alignment Strategy Complete](ALIGNMENT_STRATEGY_COMPLETE.md)** - Master summary of all strategic planning
+    -   Shared types package design (@msr/types)
+    -   API contract definitions
+    -   Seed data coordination
+    -   Feature flag alignment
+    -   Complete transition timeline
+
+### Compliance & Requirements
+
+9.  **[Compliance Gates & Signoffs](COMPLIANCE.md)** - Required approvals and ownership
+    -   RAI Inventory, HR Legal, DPIA, Accessibility, Security review gates
+    -   Critical path tracking for Phase 1-2 compliance
+
+10. **[MSR Event Hub BRD](MSR Event Hub BRD.md)** - Business requirements document
+    -   Platform goals and outcomes
+    -   MVP focus and scope
+    -   Feature areas by audience
+
+11. **[BRD Redline Edits](BRD_REDLINE_EDITS_JAN_2026.md)** - Proposed updates based on technical verification
+    -   AI governance & compliance additions
+    -   KPI updates for compliance metrics
+    -   Architecture considerations
+
+### Reference & Specialized Guides
+
+12. **[Agent Prompts & System Instructions](AGENT_PROMPTS.md)** - AI agent configurations
+    -   DOSA (Discovery) and PKA (Knowledge) agent prompts
+    -   Phase 0-4 agent evolution
+    -   Success metrics and configuration
+
+13. **[Analytics & Telemetry (1DS)](ANALYTICS_1DS_REFERENCE.md)** - Complete telemetry reference
+    -   All telemetry events (ai_content_refusal, ai_edit_action, etc.)
+    -   Event schemas and field definitions
+    -   Kusto queries for monitoring
+
+14. **[Data Engineer Onboarding](DATA_ENGINEER_ONBOARDING.md)** - 8-week onboarding plan
+    -   Data warehouse architecture
+    -   ETL pipelines and embeddings
+    -   Telemetry warehousing
     
-    -   Highlights of new infrastructure documentation
-    -   Phase timelines and team responsibilities
-    -   Quick links to setup, roadmap, and checklist artifacts
-7.  **[Azure AI Foundry Completion Report](COMPLETION_REPORT_AZURE_AI_FOUNDRY.md)** - Worklog for requirements intake
-    
-    -   Scope of imported requirements
-    -   Mapping to roadmap and phase checkpoints
-    -   Status tracking for Phase 1 readiness (Jan 24, 2026)
-        -   Feature areas and KPIs
-        -   Event timeline and architecture considerations
-    
-    12.  **[MSR Event Hub BRD (Engineering)](MSR Event Hub BRD Engineering.md)** - Engineering view of requirements
-    
-    -   AI governance model (DOSA vs. PKA)
-    -   MVP deliverables and guardrails
-    -   Operational checklists and compliance linkage
-    
-    13.  **[Phase 3-4 Completion Checklist](PHASE_3_4_COMPLETION.md)** - Blocking items before scale-out
-    
-    -   Infrastructure, security, and monitoring gates
-    -   Ownership by platform, security, and observability teams
-    -   Status tracking for later phases
-    
-    14.  **[Features & Stories Backlog](MSR_EventHub_Features and Stories.csv)** - CSV export of product backlog
-    
-    -   Story metadata with owners and priorities
-    -   Traceability to BRD references
-    -   Sprint targeting for MVP scope
+15. **[Channel Schema](CHANNEL_SCHEMA.md)** - Chat channel data model
+    -   Entity schemas and relationships
+    -   Data flow patterns
+
+16. **[Chat UI Specification](CHAT_UI_SPEC.md)** - Complete chat interface spec
+    -   31 chat actions
+    -   UI surfaces and interactions
+    -   Example commands
 
 ## Use Case Guides
 
@@ -375,8 +407,8 @@ Answer Location
 
 ## 🔄 Documentation Maintenance
 
-**Last Updated**: January 15, 2026  
-**Next Review**: April 1, 2026  
+**Last Updated**: January 26, 2026  
+**Next Review**: February 15, 2026 (Phase 2 Preparation)  
 **Maintained By**: MSR Platform Team
 
 ### Contributing
@@ -400,6 +432,6 @@ When making changes:
 
 ---
 
-**Status**: ✅ Production Ready  
-**Last Check**: January 15, 2026  
-**Next Rotation**: January 22, 2026
+**Status**: 🔄 India MVP In Final Validation (Target Jan 24, 2026)  
+**Last Updated**: January 26, 2026  
+**Next Review**: Post-MVP Launch (Estimated Jan 27-31, 2026)

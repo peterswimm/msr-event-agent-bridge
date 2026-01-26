@@ -1,5 +1,6 @@
 import { Router, Request, Response, NextFunction } from 'express';
-import { knowledgeAPI } from '../services/knowledge-api-client.js';
+import { eventsService, CreateEventInput } from '../services/events-service.js';
+import { sessionsService, CreateSessionInput } from '../services/sessions-service.js';
 import { createError } from '../middleware/error-handler.js';
 import pino from 'pino';
 
@@ -12,8 +13,18 @@ export const eventsRouter = Router();
  */
 eventsRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const data = await knowledgeAPI.get('/v1/events', req);
-    res.json(data);
+    const limit = Math.min(parseInt(req.query.limit as string) || 20, 100);
+    const offset = parseInt(req.query.offset as string) || 0;
+    const status = (req.query.status as string) || undefined;
+
+    const { events, total } = await eventsService.listEvents({ limit, offset, status: status as any });
+
+    res.json({
+      success: true,
+      data: events,
+      meta: { total, limit, offset, hasMore: offset + limit < total },
+      timestamp: new Date().toISOString()
+    });
   } catch (error) {
     next(error);
   }
@@ -25,8 +36,17 @@ eventsRouter.get('/', async (req: Request, res: Response, next: NextFunction) =>
  */
 eventsRouter.get('/:eventId', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const data = await knowledgeAPI.get(`/v1/events/${req.params.eventId}`, req);
-    res.json(data);
+    const event = await eventsService.getEvent(req.params.eventId);
+    
+    if (!event) {
+      return next(createError('Event not found', 404, 'NOT_FOUND'));
+    }
+
+    res.json({
+      success: true,
+      data: event,
+      timestamp: new Date().toISOString()
+    });
   } catch (error) {
     next(error);
   }
@@ -34,34 +54,45 @@ eventsRouter.get('/:eventId', async (req: Request, res: Response, next: NextFunc
 
 /**
  * POST /v1/events
- * Create event (requires admin role)
+ * Create event (requires admin/curator role)
  */
 eventsRouter.post('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    // Optional: Add role check if needed
-    if (req.auth && !req.auth.user.roles.includes('admin')) {
+    if (!req.auth || !req.auth.user.roles.some(r => ['admin', 'curator'].includes(r))) {
       return next(createError('Insufficient permissions', 403, 'FORBIDDEN'));
     }
 
-    const data = await knowledgeAPI.post('/v1/events', req);
-    res.status(201).json(data);
+    const input: CreateEventInput = req.body;
+    const event = await eventsService.createEvent(input);
+
+    res.status(201).json({
+      success: true,
+      data: event,
+      timestamp: new Date().toISOString()
+    });
   } catch (error) {
     next(error);
   }
 });
 
 /**
- * PATCH /v1/events/:eventId
+ * PUT /v1/events/:eventId
  * Update event
  */
-eventsRouter.patch('/:eventId', async (req: Request, res: Response, next: NextFunction) => {
+eventsRouter.put('/:eventId', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    if (req.auth && !req.auth.user.roles.includes('admin')) {
+    if (!req.auth || !req.auth.user.roles.some(r => ['admin', 'curator'].includes(r))) {
       return next(createError('Insufficient permissions', 403, 'FORBIDDEN'));
     }
 
-    const data = await knowledgeAPI.patch(`/v1/events/${req.params.eventId}`, req);
-    res.json(data);
+    const updates: Partial<CreateEventInput> = req.body;
+    const event = await eventsService.updateEvent(req.params.eventId, updates);
+
+    res.json({
+      success: true,
+      data: event,
+      timestamp: new Date().toISOString()
+    });
   } catch (error) {
     next(error);
   }
@@ -73,12 +104,21 @@ eventsRouter.patch('/:eventId', async (req: Request, res: Response, next: NextFu
  */
 eventsRouter.delete('/:eventId', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    if (req.auth && !req.auth.user.roles.includes('admin')) {
+    if (!req.auth || !req.auth.user.roles.includes('admin')) {
       return next(createError('Insufficient permissions', 403, 'FORBIDDEN'));
     }
 
-    const data = await knowledgeAPI.delete(`/v1/events/${req.params.eventId}`, req);
-    res.json(data);
+    const success = await eventsService.deleteEvent(req.params.eventId);
+    
+    if (!success) {
+      return next(createError('Event not found', 404, 'NOT_FOUND'));
+    }
+
+    res.json({
+      success: true,
+      data: { deleted: true },
+      timestamp: new Date().toISOString()
+    });
   } catch (error) {
     next(error);
   }
@@ -90,8 +130,24 @@ eventsRouter.delete('/:eventId', async (req: Request, res: Response, next: NextF
  */
 eventsRouter.get('/:eventId/sessions', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const data = await knowledgeAPI.get(`/v1/events/${req.params.eventId}/sessions`, req);
-    res.json(data);
+    const limit = Math.min(parseInt(req.query.limit as string) || 20, 100);
+    const offset = parseInt(req.query.offset as string) || 0;
+    const track = (req.query.track as string) || undefined;
+    const sessionType = (req.query.sessionType as string) || undefined;
+
+    const { sessions, total } = await eventsService.getEventSessions(req.params.eventId, { 
+      limit, 
+      offset, 
+      track, 
+      sessionType 
+    });
+
+    res.json({
+      success: true,
+      data: sessions,
+      meta: { total, limit, offset, hasMore: offset + limit < total },
+      timestamp: new Date().toISOString()
+    });
   } catch (error) {
     next(error);
   }
@@ -103,8 +159,18 @@ eventsRouter.get('/:eventId/sessions', async (req: Request, res: Response, next:
  */
 eventsRouter.post('/:eventId/sessions', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const data = await knowledgeAPI.post(`/v1/events/${req.params.eventId}/sessions`, req);
-    res.status(201).json(data);
+    if (!req.auth || !req.auth.user.roles.some(r => ['admin', 'curator'].includes(r))) {
+      return next(createError('Insufficient permissions', 403, 'FORBIDDEN'));
+    }
+
+    const input: CreateSessionInput = { eventId: req.params.eventId, ...req.body };
+    const session = await sessionsService.createSession(input);
+
+    res.status(201).json({
+      success: true,
+      data: session,
+      timestamp: new Date().toISOString()
+    });
   } catch (error) {
     next(error);
   }
