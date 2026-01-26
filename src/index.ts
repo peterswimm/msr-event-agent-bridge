@@ -13,6 +13,7 @@ import { projectsRouter } from './routes/projects.js';
 import { knowledgeRouter } from './routes/knowledge.js';
 import { healthRouter } from './routes/health.js';
 import { chatRouter } from './routes/chat.js';
+import usersRouter from './routes/users.js';
 
 dotenv.config();
 
@@ -107,6 +108,7 @@ app.use('/chat', apiLimiter);
 app.use('/chat', chatRouter);
 app.use('/v1/events', eventsRouter);
 app.use('/v1/projects', projectsRouter);
+app.use('/v1/users', usersRouter);
 app.use('/v1/knowledge', knowledgeRouter);
 
 // 404 handler

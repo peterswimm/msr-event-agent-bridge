@@ -291,8 +291,8 @@ export class UsersService {
 
       query += ' ORDER BY c.createdAt DESC OFFSET @offset LIMIT @limit';
       params.push(
-        { name: '@offset', value: offset },
-        { name: '@limit', value: limit }
+        { name: '@offset', value: String(offset) },
+        { name: '@limit', value: String(limit) }
       );
 
       const { resources } = await container.items.query<Bookmark>(query, { parameters: params }).fetchAll();
@@ -366,7 +366,7 @@ export class UsersService {
         entityId: updates.entityId || existing.entityId,
         entityType: (updates.entityType || existing.entityType) as 'event' | 'session' | 'project',
         createdAt: existing.createdAt,
-        updatedAt: new Date().toISOString()
+        savedAt: new Date().toISOString()
       };
 
       if (this.useMockData) {

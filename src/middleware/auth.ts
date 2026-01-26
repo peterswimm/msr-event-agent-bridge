@@ -228,3 +228,18 @@ export function requireScope(...scopes: string[]) {
     next();
   };
 }
+
+/**
+ * Require authentication (token must be valid)
+ * Use this middleware on routes that require an authenticated user
+ */
+export function requireAuth(req: Request, res: Response, next: NextFunction) {
+  if (!req.auth) {
+    return res.status(401).json({
+      error: 'Unauthorized',
+      message: 'Authentication required'
+    });
+  }
+
+  next();
+}

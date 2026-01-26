@@ -4,6 +4,7 @@
  */
 
 import { Event, Session, ProjectDefinition } from '../types/models.js';
+import { UserProfile, Bookmark } from './users-service.js';
 
 export const MOCK_EVENTS: Event[] = [
   {
@@ -169,5 +170,97 @@ export const MOCK_PROJECTS: ProjectDefinition[] = [
     status: 'published',
     createdAt: '2025-01-15T10:00:00Z',
     updatedAt: '2025-01-24T08:00:00Z'
+  }
+];
+
+export const MOCK_USERS: UserProfile[] = [
+  {
+    id: 'user-001',
+    email: 'alice@microsoft.com',
+    displayName: 'Dr. Alice Johnson',
+    department: 'Microsoft Research',
+    role: 'admin',
+    avatar: 'https://via.placeholder.com/100x100?text=Alice',
+    bio: 'Principal researcher in AI systems and autonomous agents',
+    createdAt: '2025-01-10T10:00:00Z',
+    updatedAt: '2025-01-24T08:00:00Z'
+  },
+  {
+    id: 'user-002',
+    email: 'bob@microsoft.com',
+    displayName: 'Bob Liu',
+    department: 'Microsoft Research',
+    role: 'curator',
+    avatar: 'https://via.placeholder.com/100x100?text=Bob',
+    bio: 'Software engineer focused on AI agent frameworks',
+    createdAt: '2025-01-10T10:00:00Z',
+    updatedAt: '2025-01-24T08:00:00Z'
+  },
+  {
+    id: 'user-003',
+    email: 'priya@microsoft.com',
+    displayName: 'Priya Sharma',
+    department: 'MSR India',
+    role: 'curator',
+    avatar: 'https://via.placeholder.com/100x100?text=Priya',
+    bio: 'Lead researcher at Microsoft Research India',
+    createdAt: '2025-01-10T10:00:00Z',
+    updatedAt: '2025-01-24T08:00:00Z'
+  },
+  {
+    id: 'user-004',
+    email: 'attendee@microsoft.com',
+    displayName: 'Sarah Mitchell',
+    department: 'Product Engineering',
+    role: 'user',
+    avatar: 'https://via.placeholder.com/100x100?text=Sarah',
+    bio: 'Product engineer interested in AI research',
+    createdAt: '2025-01-20T10:00:00Z',
+    updatedAt: '2025-01-24T08:00:00Z'
+  }
+];
+
+export const MOCK_BOOKMARKS: Bookmark[] = [
+  {
+    id: 'bookmark-001',
+    userId: 'user-002',
+    entityId: 'RRS25-SESSION-001',
+    entityType: 'session',
+    eventId: 'redmond-2025',
+    notes: 'Great insights on agent architecture patterns',
+    tags: ['favorite', 'ai-agents'],
+    createdAt: '2025-01-24T09:35:00Z',
+    savedAt: '2025-01-24T09:35:00Z'
+  },
+  {
+    id: 'bookmark-002',
+    userId: 'user-002',
+    entityId: 'proj-001',
+    entityType: 'project',
+    notes: 'Relevant to our current research direction',
+    tags: ['research', 'agents'],
+    createdAt: '2025-01-24T10:15:00Z',
+    savedAt: '2025-01-24T10:15:00Z'
+  },
+  {
+    id: 'bookmark-003',
+    userId: 'user-004',
+    entityId: 'redmond-2025',
+    entityType: 'event',
+    notes: 'Planning to attend this event',
+    tags: ['attend'],
+    createdAt: '2025-01-20T15:30:00Z',
+    savedAt: '2025-01-20T15:30:00Z'
+  },
+  {
+    id: 'bookmark-004',
+    userId: 'user-004',
+    entityId: 'RRS25-WORKSHOP-001',
+    entityType: 'session',
+    eventId: 'redmond-2025',
+    notes: 'Must attend - hands-on learning opportunity',
+    tags: ['workshop', 'learning'],
+    createdAt: '2025-01-22T14:00:00Z',
+    savedAt: '2025-01-22T14:00:00Z'
   }
 ];
