@@ -7,6 +7,8 @@ import { Router, Request, Response } from 'express';
 import pino from 'pino';
 import { usersService, UpdateUserProfileInput, BookmarkInput } from '../services/users-service.js';
 import { requireAuth } from '../middleware/auth.js';
+import { validateBody, validateQuery } from '../middleware/validation.js';
+import { bookmarkCreateSchema, userProfileUpdateSchema, bookmarksQuerySchema } from '../validation/schemas.js';
 
 const logger = pino();
 const router = Router();
@@ -49,28 +51,19 @@ router.get('/:userId', async (req: Request, res: Response) => {
  * Update user profile
  * Requires authentication as the user being updated or as admin
  */
-router.put('/:userId', requireAuth, async (req: Request, res: Response) => {
+router.put('/:userId', requireAuth, validateBody(userProfileUpdateSchema), async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
     const { displayName, department, avatar, bio } = req.body as UpdateUserProfileInput;
 
     // Check authorization
-    const currentUserId = (req as any).user?.id;
-    const currentUserRole = (req as any).user?.role;
+    const currentUserId = req.auth?.user.id;
+    const currentUserRoles = req.auth?.user.roles || [];
 
-    if (currentUserId !== userId && currentUserRole !== 'admin') {
+    if (currentUserId !== userId && !currentUserRoles.includes('admin')) {
       return res.status(403).json({
         success: false,
         error: 'Not authorized to update this user',
-        timestamp: new Date().toISOString()
-      });
-    }
-
-    // Validate input
-    if (!displayName && !department && !avatar && !bio) {
-      return res.status(400).json({
-        success: false,
-        error: 'At least one field must be provided for update',
         timestamp: new Date().toISOString()
       });
     }
@@ -105,7 +98,7 @@ router.put('/:userId', requireAuth, async (req: Request, res: Response) => {
  *   - limit: number (default 50)
  *   - offset: number (default 0)
  */
-router.get('/:userId/bookmarks', async (req: Request, res: Response) => {
+router.get('/:userId/bookmarks', validateQuery(bookmarksQuerySchema), async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
     const { entityType, limit = 50, offset = 0 } = req.query;
@@ -145,36 +138,19 @@ router.get('/:userId/bookmarks', async (req: Request, res: Response) => {
  * Add a new bookmark
  * Requires authentication as the user or as admin
  */
-router.post('/:userId/bookmarks', requireAuth, async (req: Request, res: Response) => {
+router.post('/:userId/bookmarks', requireAuth, validateBody(bookmarkCreateSchema), async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
     const { entityId, entityType, eventId, notes, tags } = req.body as BookmarkInput;
 
     // Check authorization
-    const currentUserId = (req as any).user?.id;
-    const currentUserRole = (req as any).user?.role;
+    const currentUserId = req.auth?.user.id;
+    const currentUserRoles = req.auth?.user.roles || [];
 
-    if (currentUserId !== userId && currentUserRole !== 'admin') {
+    if (currentUserId !== userId && !currentUserRoles.includes('admin')) {
       return res.status(403).json({
         success: false,
         error: 'Not authorized to bookmark for this user',
-        timestamp: new Date().toISOString()
-      });
-    }
-
-    // Validate required fields
-    if (!entityId || !entityType) {
-      return res.status(400).json({
-        success: false,
-        error: 'entityId and entityType are required',
-        timestamp: new Date().toISOString()
-      });
-    }
-
-    if (!['event', 'session', 'project'].includes(entityType)) {
-      return res.status(400).json({
-        success: false,
-        error: 'entityType must be one of: event, session, project',
         timestamp: new Date().toISOString()
       });
     }
@@ -212,10 +188,10 @@ router.delete('/:userId/bookmarks/:bookmarkId', requireAuth, async (req: Request
     const { userId, bookmarkId } = req.params;
 
     // Check authorization
-    const currentUserId = (req as any).user?.id;
-    const currentUserRole = (req as any).user?.role;
+    const currentUserId = req.auth?.user.id;
+    const currentUserRoles = req.auth?.user.roles || [];
 
-    if (currentUserId !== userId && currentUserRole !== 'admin') {
+    if (currentUserId !== userId && !currentUserRoles.includes('admin')) {
       return res.status(403).json({
         success: false,
         error: 'Not authorized to remove bookmarks for this user',
@@ -256,27 +232,19 @@ router.delete('/:userId/bookmarks/:bookmarkId', requireAuth, async (req: Request
  *   - entityId: string (required)
  *   - entityType: 'event' | 'session' | 'project' (required)
  */
-router.delete('/:userId/bookmarks', requireAuth, async (req: Request, res: Response) => {
+router.delete('/:userId/bookmarks', requireAuth, validateQuery(bookmarkCreateSchema.pick({ entityId: true, entityType: true })), async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
     const { entityId, entityType } = req.query;
 
     // Check authorization
-    const currentUserId = (req as any).user?.id;
-    const currentUserRole = (req as any).user?.role;
+    const currentUserId = req.auth?.user.id;
+    const currentUserRoles = req.auth?.user.roles || [];
 
-    if (currentUserId !== userId && currentUserRole !== 'admin') {
+    if (currentUserId !== userId && !currentUserRoles.includes('admin')) {
       return res.status(403).json({
         success: false,
         error: 'Not authorized to remove bookmarks for this user',
-        timestamp: new Date().toISOString()
-      });
-    }
-
-    if (!entityId || !entityType) {
-      return res.status(400).json({
-        success: false,
-        error: 'entityId and entityType are required',
         timestamp: new Date().toISOString()
       });
     }

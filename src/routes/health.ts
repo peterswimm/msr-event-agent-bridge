@@ -1,9 +1,11 @@
 import { Router, Request, Response } from 'express';
 import { knowledgeAPI } from '../services/knowledge-api-client.js';
+import { cosmosDB } from '../services/cosmos-db-client.js';
 import pino from 'pino';
 
 const logger = pino();
 export const healthRouter = Router();
+export const readyRouter = Router();
 
 /**
  * GET /health
@@ -22,13 +24,15 @@ healthRouter.get('/', (req: Request, res: Response) => {
  * GET /ready
  * Readiness probe - checks backend connectivity
  */
-healthRouter.get('/', async (req: Request, res: Response) => {
+readyRouter.get('/', async (req: Request, res: Response) => {
   try {
     await knowledgeAPI.health();
+    const cosmosReady = cosmosDB.isAvailable();
     res.json({
       status: 'ready',
       service: 'event-hub-bridge',
       backend: 'connected',
+      cosmos: cosmosReady ? 'available' : 'mock-mode',
       timestamp: new Date().toISOString()
     });
   } catch (error) {

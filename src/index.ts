@@ -11,7 +11,7 @@ import { initializeTelemetry, telemetryMiddleware } from './middleware/telemetry
 import { eventsRouter } from './routes/events.js';
 import { projectsRouter } from './routes/projects.js';
 import { knowledgeRouter } from './routes/knowledge.js';
-import { healthRouter } from './routes/health.js';
+import { healthRouter, readyRouter } from './routes/health.js';
 import { chatRouter } from './routes/chat.js';
 import usersRouter from './routes/users.js';
 
@@ -95,7 +95,7 @@ app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 // Health check (before auth)
 app.use('/health', healthRouter);
-app.use('/ready', healthRouter);
+app.use('/ready', readyRouter);
 
 // Authentication middleware
 app.use(authMiddleware);
